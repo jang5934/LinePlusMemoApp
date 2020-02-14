@@ -40,8 +40,8 @@ public class ListViewAdapter extends BaseAdapter {
 
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
         ImageView iconImageView = (ImageView) convertView.findViewById(R.id.imageView) ;
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.subject) ;
-        TextView descTextView = (TextView) convertView.findViewById(R.id.preview) ;
+        TextView subjectTextView = (TextView) convertView.findViewById(R.id.subject) ;
+        TextView previewTextView = (TextView) convertView.findViewById(R.id.preview) ;
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         ListViewItem listViewItem = listViewItemList.get(position);
@@ -52,8 +52,8 @@ public class ListViewAdapter extends BaseAdapter {
         else
             iconImageView.setImageDrawable(listViewItem.getIcon());
 
-        titleTextView.setText(listViewItem.getSubject());
-        descTextView.setText(listViewItem.getPreview());
+        subjectTextView.setText(listViewItem.getSubject());
+        previewTextView.setText(listViewItem.getPreview());
 
         return convertView;
     }
