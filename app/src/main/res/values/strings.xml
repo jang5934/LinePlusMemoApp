@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">메모 어플리케이션</string>
+    <string name="read">메모 보기</string>
+    <string name="write">메모 새로 작성</string>
+    <string name="modify">메모 편집</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
