@@ -65,9 +65,6 @@ public class MemoReadActivity extends AppCompatActivity {
                 break;
             }
         }
-
-
-
     }
 
     // 액션바 지정 및 생성
@@ -85,7 +82,8 @@ public class MemoReadActivity extends AppCompatActivity {
 
                 // 메모 수정 액티비티 이동
                 Intent intent = new Intent(getApplicationContext(), MemoEditActivity.class);
-                intent.putExtra("type", "add_memo");
+                intent.putExtra("type", "edit_memo");
+                intent.putExtra("mid", mId);
                 startActivity(intent);
                 return true;
 

@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,8 +51,6 @@ public class MainActivity extends AppCompatActivity {
             int tMid = mCursor.getInt(mCursor.getColumnIndex("mid"));
             String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
             String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
-            adapter.addItem(tMid, ContextCompat.getDrawable(this, R.mipmap.ic_img_empty), tSubjcet, tContent);
-
 
             Cursor iCursor = openHelper.selectImgPath();
 

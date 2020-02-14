@@ -2,10 +2,13 @@ package com.example.lineplusmemoapp;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +20,7 @@ public class MemoEditActivity extends AppCompatActivity {
     private String type;
     private String memo_subject;
     private String memo_content;
-    private int memo_num;
+    private int memo_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +30,8 @@ public class MemoEditActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         type = intent.getExtras().getString("type");
+        memo_id = intent.getExtras().getInt("mid");
+
         if(type.equals("add_memo")) {
             ActionBar ab = getSupportActionBar();
             ab.setTitle(R.string.write);
@@ -44,13 +49,29 @@ public class MemoEditActivity extends AppCompatActivity {
 
         if(!type.equals("add_memo")) {
             // 글 수정 기능으로 진입한 경우,
-            EditText eSubject = (EditText)findViewById(R.id.editText_subject);
-            EditText eContent = (EditText)findViewById(R.id.editText_content);
 
-            eSubject.setText(memo_subject);
-            eContent.setText(memo_content);
+            MemoDBOpenHelper openHelper = new MemoDBOpenHelper(this);
+            openHelper.open();
+            openHelper.create();
+
+            Cursor mCursor = openHelper.selectMemo();
+
+            while(mCursor.moveToNext()) {
+                if(memo_id == mCursor.getInt(mCursor.getColumnIndex("mid"))) {
+                    String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
+                    String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
+
+                    EditText eSubject = (EditText)findViewById(R.id.editText_subject);
+                    EditText eContent = (EditText)findViewById(R.id.editText_content);
+
+                    eSubject.setText(tSubjcet);
+                    eContent.setText(tContent);
 
 
+
+                    attached_imgs_adapter.add(new AttachedImg(1));
+                }
+            }
         }
         attached_imgs_adapter.add(new AttachedImg(0));
     }
