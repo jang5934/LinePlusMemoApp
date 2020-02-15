@@ -3,7 +3,7 @@ package com.example.lineplusmemoapp;
 import android.provider.BaseColumns;
 
 public final class MemoDB {
-    public static final class CreateDB implements BaseColumns {
+    public static final class DBReference implements BaseColumns {
         public static final String MID = "mid";
         public static final String SUBJECT = "subject";
         public static final String CONTENT = "content";

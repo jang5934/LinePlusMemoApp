@@ -1,34 +1,43 @@
 package com.example.lineplusmemoapp;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MemoReadActivity extends AppCompatActivity {
 
-    private int mId;
+    private int memo_id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memo_read);
 
+        // 액션 바 이름 설정 - '읽기 페이지'
+        ActionBar ab = getSupportActionBar();
+        ab.setTitle(R.string.read);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         // 이전 액티비티에서 선택된 메모의 id 획득
         Intent intent = getIntent();
-        mId = intent.getExtras().getInt("mid");
+        memo_id = intent.getExtras().getInt("mid");
 
         // DB 헬퍼 및 커서 생성
         MemoDBOpenHelper openhelper = new MemoDBOpenHelper(this);
         openhelper.open();
         openhelper.create();
-        Cursor mCursor = openhelper.selectMemoWhereMid(mId);
+        Cursor mCursor = openhelper.selectMemoWhereMid(memo_id);
         mCursor.moveToNext();
 
         // 해당하는 메모의 제목과 내용 임시저장
@@ -58,30 +67,41 @@ public class MemoReadActivity extends AppCompatActivity {
             layout.addView(iv); // 기존 linearLayout에 imageView 추가
         }
         */
+
+        // 커서 닫기
+        mCursor.close();
     }
 
-    // 액션바 지정 및 생성
+    // 메모 읽기 창 액션 바 등록
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actionbar_for_read, menu);
         return true;
     }
 
-    // 액션바 버튼 눌렸을 때 (새 메모 쓰기 기능)
+    // 메모 읽기 창 액션 바의 버튼이 눌린 경우에 대한 함수
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Toast myToast;
+        MemoDBOpenHelper openHelper;
+
         switch (item.getItemId()) {
             case R.id.action_edit :
-
-                // 메모 수정 액티비티 이동
+                // 현재 가지고있는 메모id와 편집 태그를 가지고 메모 수정 액티비티 이동
                 Intent intent = new Intent(getApplicationContext(), MemoEditActivity.class);
                 intent.putExtra("type", "edit_memo");
-                intent.putExtra("mid", mId);
+                intent.putExtra("mid", memo_id);
                 startActivity(intent);
                 return true;
-
             case R.id.action_delete :
-
+                // 현재 메모 삭제 수행
+                openHelper = new MemoDBOpenHelper(this);
+                openHelper.open();
+                openHelper.create();
+                openHelper.deleteMemo(memo_id);
+                myToast = Toast.makeText(MemoReadActivity.this, "메모가 삭제되었습니다.", Toast.LENGTH_SHORT);
+                myToast.show();
+                finish();
                 return true;
             default :
                 return super.onOptionsItemSelected(item);

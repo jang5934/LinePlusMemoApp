@@ -21,10 +21,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 액션 바 이름 바꿔줌
+        // 액션 바 이름 설정 - '메모 보기'
         ActionBar ab = getSupportActionBar();
         ab.setTitle(R.string.read);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         // DBhelper 및 커서 생성
         MemoDBOpenHelper openHelper = new MemoDBOpenHelper(this);
         openHelper.open();
@@ -37,12 +41,6 @@ public class MainActivity extends AppCompatActivity {
         // 리스트뷰 참조 및 Adapter달기
         listview = (ListView) findViewById(R.id.memo_listview);
         listview.setAdapter(adapter);
-
-        // 임시 삽입문
-        // 추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제
-        openHelper.insertMemo("제목", "내용내용11");
-        // 추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제추후 삭제
-
 
         // 리스트 아이템 추가 파트
         Cursor mCursor = openHelper.selectMemo();
@@ -63,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri img_uri = Uri.parse(img_path);
                 adapter.addItem(tMid, img_uri, tSubjcet, tContent);
             }
+            iCursor.close();
         }
 
         // 리스트 뷰 아이템의 이벤트 리스너
@@ -78,27 +77,26 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }) ;
+        mCursor.close();
     }
 
-    // 액션바 지정 및 생성
+    // 메모 리스트 창 액션 바
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actionbar_for_list, menu);
         return true;
     }
 
-    // 액션바 버튼 눌렸을 때 (새 메모 쓰기 기능)
+    // 메모 리스트 창 액션 바의 버튼이 눌린 경우에 대한 함수
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add :
-
                 // 새로 쓰기 액티비티 이동
                 Intent intent = new Intent(getApplicationContext(), MemoEditActivity.class);
                 intent.putExtra("type", "add_memo");
                 startActivity(intent);
                 return true;
-
             default :
                 return super.onOptionsItemSelected(item);
         }
