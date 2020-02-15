@@ -54,24 +54,25 @@ public class MemoEditActivity extends AppCompatActivity {
             openHelper.open();
             openHelper.create();
 
-            Cursor mCursor = openHelper.selectMemo();
+            // 찾고자 하는 mid에 대한 커서 획득
+            Cursor mCursor = openHelper.selectMemoWhereMid(memo_id);
+            mCursor.moveToNext();
 
-            while(mCursor.moveToNext()) {
-                if(memo_id == mCursor.getInt(mCursor.getColumnIndex("mid"))) {
-                    String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
-                    String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
+            // 현재 커서가 가리키는 컬럼의 제목과 내용 정보 획득
+            String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
+            String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
 
-                    EditText eSubject = (EditText)findViewById(R.id.editText_subject);
-                    EditText eContent = (EditText)findViewById(R.id.editText_content);
+            // 에딧텍스트 뷰 획득 및 텍스트 적용
+            EditText eSubject = (EditText)findViewById(R.id.editText_subject);
+            EditText eContent = (EditText)findViewById(R.id.editText_content);
+            eSubject.setText(tSubjcet);
+            eContent.setText(tContent);
 
-                    eSubject.setText(tSubjcet);
-                    eContent.setText(tContent);
+            // 현재 mid에 포함되는 이미지들을 선택
+            Cursor iCursor = openHelper.selectImgPathWhereMid(memo_id);
 
-
-
-                    attached_imgs_adapter.add(new AttachedImg(1));
-                }
-            }
+            // 추후구현
+            attached_imgs_adapter.add(new AttachedImg(1));
         }
         attached_imgs_adapter.add(new AttachedImg(0));
     }

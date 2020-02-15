@@ -70,7 +70,15 @@ public class MemoDBOpenHelper {
         return mDB.query(MemoDB.CreateDB._TABLENAME0, null, null, null, null, null, null);
     }
 
+    public Cursor selectMemoWhereMid(int mid){
+        return mDB.rawQuery("SELECT * FROM " + MemoDB.CreateDB._TABLENAME0 + " WHERE mid = " + Integer.toString(mid), null);
+    }
+
     public Cursor selectImgPath(){
         return mDB.query(MemoDB.CreateDB._TABLENAME1, null, null, null, null, null, null);
+    }
+
+    public Cursor selectImgPathWhereMid(int mid){
+        return mDB.rawQuery("SELECT * FROM " + MemoDB.CreateDB._TABLENAME1 + " WHERE mid = " + Integer.toString(mid), null);
     }
 }

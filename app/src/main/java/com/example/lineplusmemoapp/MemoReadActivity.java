@@ -28,43 +28,36 @@ public class MemoReadActivity extends AppCompatActivity {
         MemoDBOpenHelper openhelper = new MemoDBOpenHelper(this);
         openhelper.open();
         openhelper.create();
+        Cursor mCursor = openhelper.selectMemoWhereMid(mId);
+        mCursor.moveToNext();
 
-        Cursor mCursor = openhelper.selectMemo();
-        while(mCursor.moveToNext()) {
-            int tMid = mCursor.getInt(mCursor.getColumnIndex("mid"));
-            // 현재 열고자 하는 메모의 번호와 맞는 컬럼을 찾은 경우,
-            if(tMid == mId)
-            {
-                // 해당하는 메모의 제목과 내용 임시저장
-                String curSubject = mCursor.getString(mCursor.getColumnIndex("subject"));
-                String curContent = mCursor.getString(mCursor.getColumnIndex("content"));
+        // 해당하는 메모의 제목과 내용 임시저장
+        String curSubject = mCursor.getString(mCursor.getColumnIndex("subject"));
+        String curContent = mCursor.getString(mCursor.getColumnIndex("content"));
 
-                // 텍스트 뷰 따오기
-                TextView tSubject = (TextView)findViewById(R.id.textView_subject);
-                TextView tContent = (TextView)findViewById(R.id.textView_content);
+        // 텍스트 뷰 따오기
+        TextView tSubject = (TextView)findViewById(R.id.textView_subject);
+        TextView tContent = (TextView)findViewById(R.id.textView_content);
 
-                // 텍스트 뷰에 받아온 메모제목과 메모내용 적용
-                tSubject.setText(curSubject);
-                tContent.setText(curContent);
+        // 텍스트 뷰에 받아온 메모제목과 메모내용 적용
+        tSubject.setText(curSubject);
+        tContent.setText(curContent);
 
-                /*
-                for(int i = 0; i < 1; i++) {
-                    // 읽기 페이지의 레이아웃 따오기
-                    LinearLayout layout = (LinearLayout) findViewById(R.id.read_page_layout);
-                    LinearLayout.LayoutParams layoutParams =
-                            new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    1f);
+        /*
+        for(int i = 0; i < 1; i++) {
+            // 읽기 페이지의 레이아웃 따오기
+            LinearLayout layout = (LinearLayout) findViewById(R.id.read_page_layout);
+            LinearLayout.LayoutParams layoutParams =
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            1f);
 
-                    ImageView iv = new ImageView(this);  // 새로 추가할 imageView 생성
-                    iv.setImageResource(R.drawable.ic_launcher_background);  // imageView에 내용 추가
-                    iv.setLayoutParams(layoutParams);  // imageView layout 설정
-                    layout.addView(iv); // 기존 linearLayout에 imageView 추가
-                }
-                */
-                break;
-            }
+            ImageView iv = new ImageView(this);  // 새로 추가할 imageView 생성
+            iv.setImageResource(R.drawable.ic_launcher_background);  // imageView에 내용 추가
+            iv.setLayoutParams(layoutParams);  // imageView layout 설정
+            layout.addView(iv); // 기존 linearLayout에 imageView 추가
         }
+        */
     }
 
     // 액션바 지정 및 생성

@@ -1,6 +1,7 @@
 package com.example.lineplusmemoapp;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,38 +35,19 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
     @Override
     public void onBindViewHolder(@NonNull AttachedImgViewHolder holder, int position) {
         AttachedImg item = items.get(position);
-        // 추후 구현
+
+        /*
+        String fileName= "https://cdn5.vectorstock.com/i/thumbs/78/24/blue-glossy-button-blank-icon-square-empty-shape-vector-12937824.jpg";
+        Uri fileUri = Uri.parse(fileName);
+        */
+
+        if(item.getImg_type() == 1) {
+            holder.mImg.setImageURI(item.getImageUri());
+        }
     }
 
     @Override
     public int getItemCount() {
         return items.size();
-    }
-
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final int pos = position;
-        final Context context = parent.getContext();
-
-        // "listview_item" Layout을 inflate하여 convertView 참조 획득.
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.item, parent, false);
-        }
-
-        // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
-        ImageView iconImageView = (ImageView) convertView.findViewById(R.id.imageView) ;
-        TextView subjectTextView = (TextView) convertView.findViewById(R.id.subject) ;
-        TextView previewTextView = (TextView) convertView.findViewById(R.id.preview) ;
-
-        // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
-        AttachedImg attachedImgItem = attachedImgList.get(position);
-
-        // 아이템 내 각 위젯에 데이터 반영
-        if(attachedImgItem.getImg_type() == 1)
-            iconImageView.setImageURI(attachedImgItem.getImageUri());
-        else
-            iconImageView.setImageDrawable(attachedImgItem.getIcon());
-
-        return convertView;
     }
 }
