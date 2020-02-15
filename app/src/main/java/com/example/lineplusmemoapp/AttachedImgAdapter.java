@@ -1,15 +1,13 @@
 package com.example.lineplusmemoapp;
 
-import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +17,18 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
     @NonNull
     @Override
     public AttachedImgViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(
-                parent.getContext()).inflate(R.layout.attached_image, parent, false
-        );
+        View v;
+
+        // TODO 각 뷰의 레이아웃의 중류가 나뉘어져야 하는 경우 수정할 것
+        if (viewType == 1) { // 현재 뷰가 사진을 포함한 뷰인 경우
+            v = LayoutInflater.from(
+                    parent.getContext()).inflate(R.layout.attached_image, parent, false);
+        }
+        else {
+            v = LayoutInflater.from(
+                    parent.getContext()).inflate(R.layout.attached_image, parent, false);
+        }
+
         return new AttachedImgViewHolder(v);
     }
 
@@ -32,22 +39,32 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
         notifyDataSetChanged();
     }
 
+
+    // TODO : 수정 필요함
     @Override
     public void onBindViewHolder(@NonNull AttachedImgViewHolder holder, int position) {
         AttachedImg item = items.get(position);
 
-        /*
-        String fileName= "https://cdn5.vectorstock.com/i/thumbs/78/24/blue-glossy-button-blank-icon-square-empty-shape-vector-12937824.jpg";
-        Uri fileUri = Uri.parse(fileName);
-        */
-
         if(item.getImg_type() == 1) {
-            holder.mImg.setImageURI(item.getImageUri());
+            // String imgPath = item.getImageUri().getPath();
+            String imgPath = "https://bit.ly/2V1ipNj";
+
+            // Glide.with(holder.mImg).load(imgPath).placeholder(R.drawable.placeholder).error(R.drawable.error_image).into(holder.mImg);
         }
     }
 
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        // 사진이 담겨야하는 객체인 경우,
+        if(attachedImgList.size() != 0 && attachedImgList.get(position).getImg_type() == 1){
+            return 1;
+        }
+        // 빈 사진인 경우(사진 추가 버튼 형태의 뷰)
+        return 0;
     }
 }
