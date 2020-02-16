@@ -5,4 +5,13 @@
     <string name="modify">메모 편집</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="img_path_menu">
+        <item></item>
+        <item>사진첩에서 첨부</item>
+        <item>카메라 촬영</item>
+        <item>사진 URL 입력</item>
+    </string-array>
+    <string name="permission_1">[설정] > [권한] 에서 권한을 허용할 수 있습니다.\n[닫기]를 누르시면 어플리케이션이 종료됩니다.</string>
+    <string name="permission_2">원활한 어플리케이션 사용을 위해 권한을 허용해 주십시오.</string>
 </resources>

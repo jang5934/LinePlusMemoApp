@@ -3,6 +3,8 @@ package com.example.lineplusmemoapp;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -82,7 +84,6 @@ public class MemoReadActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Toast myToast;
-        MemoDBOpenHelper openHelper;
 
         switch (item.getItemId()) {
             case R.id.action_edit :
@@ -93,14 +94,27 @@ public class MemoReadActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_delete :
-                // 현재 메모 삭제 수행
-                openHelper = new MemoDBOpenHelper(this);
-                openHelper.open();
-                openHelper.create();
-                openHelper.deleteMemo(memo_id);
-                myToast = Toast.makeText(MemoReadActivity.this, "메모가 삭제되었습니다.", Toast.LENGTH_SHORT);
-                myToast.show();
-                finish();
+
+                AlertDialog.Builder confirm = new AlertDialog.Builder(this);
+                confirm.setTitle("메모 삭제")
+                        .setMessage("정말 삭제하시겠습니까?")
+                        .setPositiveButton( "확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int button) {
+                                // 현재 메모 삭제 수행
+                                MemoDBOpenHelper openHelper;
+                                Toast myToast;
+                                openHelper = new MemoDBOpenHelper(MemoReadActivity.this);
+                                openHelper.open();
+                                openHelper.create();
+                                openHelper.deleteMemo(memo_id);
+                                myToast = Toast.makeText(MemoReadActivity.this, "메모가 삭제되었습니다.", Toast.LENGTH_SHORT);
+                                myToast.show();
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("취소", null)
+                        .show();
                 return true;
             default :
                 return super.onOptionsItemSelected(item);
