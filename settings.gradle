@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':mocks', ':annotation:compiler', ':integration:concurrent', ':samples:contacturi', ':annotation', ':samples:gallery', ':samples:giphy', ':library:pmd', ':library:test', ':integration:okhttp', ':third_party:disklrucache', ':samples:svg', ':annotation:compiler:test', ':integration:gifencoder', ':integration:recyclerview', ':third_party:gif_decoder', ':library', ':integration:volley', ':integration', ':integration:okhttp3', ':instrumentation', ':samples:imgur', ':testutil', ':glide', ':samples:flickr', ':library:findbugs'
 rootProject.name='LinePlusMemoApp'
