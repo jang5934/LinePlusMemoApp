@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -25,11 +24,17 @@ import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 
 public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHolder> implements OnAttachedImgClickListener{
 
     private List<AttachedImg> items = new ArrayList<>();
+
+    // 저장 버튼이 눌렸을 때 반환할 추가/삭제할 이미지 정보 벡터
+    private Vector<String> beAddedPathList = new Vector<>();
+    private Vector<String> beDeletedIidList = new Vector<>();
+
     private Context mContext;
     private Uri cameraImageUri;
 
@@ -60,7 +65,8 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
 
     public void add(AttachedImg item) {
         items.add(item);
-        // 정보를 받았을 때 뷰에 바로 반영해줌
+        beAddedPathList.add(item.getImgPath());
+        // 뷰에 바로 반영해줌
         notifyDataSetChanged();
     }
 
@@ -73,9 +79,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
         final AttachedImgViewHolder tHolder = holder;
 
         if(item.getImg_type() != 0) {
-
             String imgPath = item.getImgPath();
-
             Glide.with(holder.mImg)
                  .load(imgPath)
                  .listener(new RequestListener<Drawable>() {
@@ -153,7 +157,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                                                     .setPositiveButton("추가", new DialogInterface.OnClickListener() {
                                                         public void onClick(DialogInterface dialogBox, int id) {
                                                             if(userInputDialogEditText.getText().toString().length() != 0)
-                                                                add(new AttachedImg(1, userInputDialogEditText.getText().toString()));
+                                                                add(new AttachedImg(2, userInputDialogEditText.getText().toString()));
                                                         }
                                                     })
                                                     .setNegativeButton("취소",
@@ -172,13 +176,38 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                     .setCancelable(true)
                     .show();
         }
-        // 선택된 사진의 타입이 '기존 사진'인 경우
+        // 선택된 사진의 타입이 편집 페이지에 올라와있는 사진인 경우
         else {
             // 사진을 삭제하겠냐는 메시지를 띄워준다.
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            final int tPos = position;
+            builder.setTitle("첨부 사진 제거")
+            .setMessage("사진을 첨부 리스트에서 제거하시겠습니까?")
+            .setPositiveButton("제거", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if(items.get(tPos).getImg_type() == 1)
+                        beDeletedIidList.add(Integer.toString(items.get(tPos).getIid()));
+                    items.remove(items.get(tPos));
+                    // 뷰에 바로 반영해줌
+                    notifyDataSetChanged();
+                }
+            }).setNegativeButton("취소", null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 
     public Uri getCameraImageUri() {
         return cameraImageUri;
+    }
+
+    public Vector<String> getBeAddedPathList() {
+        return beAddedPathList;
+    }
+
+    public Vector<String> getBeDeletedIidList() {
+        return beDeletedIidList;
     }
 }
