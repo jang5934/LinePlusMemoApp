@@ -9,27 +9,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.io.File;
 
 import static com.example.lineplusmemoapp.AttachedImgAdapter.PICK_FROM_ALBUM;
 import static com.example.lineplusmemoapp.AttachedImgAdapter.PICK_FROM_CAMERA;
 
 public class MemoEditActivity extends AppCompatActivity {
 
-    private static final int CROP_FROM_CAMERA = 2;
-    private static final int CROP_FROM_ALBUM = 3;
-
     private String type; // 새 메모 추가인지 기존메모 수정인지를 기록
     private int memo_id; // 기존 메모 수정의 경우 해당 메모의 id 저장
     private AttachedImgAdapter attached_imgs_adapter;
     private RecyclerView attached_imgs_view;
     private LinearLayoutManager attached_imgs_layout_manager;
+    private Uri cameraImgPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +91,8 @@ public class MemoEditActivity extends AppCompatActivity {
 
 
             // TODO 사진추가 리사이클러뷰 제작해야함.
-            attached_imgs_adapter.add(new AttachedImg(1));
+            attached_imgs_adapter.add(new AttachedImg(1, "/sdcard/Images/20200216_200140.png"));
+            attached_imgs_adapter.add(new AttachedImg(2, "https://raw.githubusercontent.com/bumptech/glide/master/static/glide_logo.png"));
             iCursor.close();
             mCursor.close();
         }
@@ -150,34 +154,40 @@ public class MemoEditActivity extends AppCompatActivity {
         if(resultCode != RESULT_OK)
             return;
 
+        Uri dataUri;
+        String picturePath = "";
+
         switch(requestCode) {
             case PICK_FROM_ALBUM:
                 // 사진첩에서 가져오는 경우
-                Uri dataUri = data.getData();
-                String picturePath = getPath(getApplicationContext(), dataUri);
+                dataUri = data.getData();
+                picturePath = getPath(getApplicationContext(), dataUri, requestCode);
                 Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
                 break;
             case PICK_FROM_CAMERA:
                 // 바로 촬영하는 경우
-                Uri temp1 = (Uri)data.getExtras().get("data");
-                String temp2 = (String)data.getExtras().get("data");
+                dataUri = attached_imgs_adapter.getCameraImageUri();
+                picturePath = dataUri.toString();
+                picturePath = "/storage/emulated/0/" + picturePath.substring(picturePath.indexOf("/external/") + 10);
+                Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
 
-
-                if(data != null && data.getExtras().get("data") != null) {
-                    Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
-                }
-                else
-                    Toast.makeText(this, "null", Toast.LENGTH_SHORT).show();
-
-                attached_imgs_adapter.add(new AttachedImg(1));
+                // attached_imgs_adapter.add(new AttachedImg(1));
                 // attached_imgs_adapter.add(new AttachedImg(1));
                 break;
         }
+
+        /*
+        File imgFile = new File(picturePath);
+        Bitmap tempBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+        ImageView tempiv = (ImageView)findViewById(R.id.imageview_temp);
+        tempiv.setImageBitmap(tempBitmap);
+         */
     }
 
-    public static String getPath(Context context, Uri uri ) {
+    public static String getPath(Context context, Uri uri, int flag ) {
         String result = null;
         String[] proj = { MediaStore.Images.Media.DATA };
+
         Cursor cursor = context.getContentResolver( ).query( uri, proj, null, null, null );
         if(cursor != null){
             if ( cursor.moveToFirst( ) ) {

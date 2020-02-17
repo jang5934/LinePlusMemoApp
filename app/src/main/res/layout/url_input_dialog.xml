@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_dialog_layout_design_user_input"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/urlInputTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="사진 URL 추가"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/urlInputDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="사진 URL"
+        android:inputType="text" />
+</LinearLayout>

@@ -5,11 +5,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,12 +28,13 @@ import java.util.List;
 
 
 public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHolder> implements OnAttachedImgClickListener{
+
     private List<AttachedImg> items = new ArrayList<>();
     private Context mContext;
-    static int remember_position;
+    private Uri cameraImageUri;
 
-    public static final int PICK_FROM_CAMERA = 0;
     public static final int PICK_FROM_ALBUM = 1;
+    public static final int PICK_FROM_CAMERA = 2;
 
     public AttachedImgAdapter (@NonNull Context context) {
         mContext = context;
@@ -68,11 +72,9 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
 
         final AttachedImgViewHolder tHolder = holder;
 
-        if(item.getImg_type() == 1) {
+        if(item.getImg_type() != 0) {
 
-            // String imgPath = item.getImageUri().getPath();
-            String imgPath = "https://raw.githubusercontent.com/bumptech/glide/master/static/glide_logo11.png";
-
+            String imgPath = item.getImgPath();
 
             Glide.with(holder.mImg)
                  .load(imgPath)
@@ -102,7 +104,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
     @Override
     public int getItemViewType(int position) {
         // 사진이 담겨야하는 객체인 경우,
-        if(items.size() != 0 && items.get(position).getImg_type() == 1){
+        if(items.size() != 0 && items.get(position).getImg_type() != 0){
             return 1;
         }
         // 빈 사진인 경우(사진 추가 버튼 형태의 뷰)
@@ -111,8 +113,6 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
 
     @Override
     public void onAttachedImgClick(int position) {
-        // 선택된 사진의 타입이 '추가'인 경우
-        remember_position = position;
         if(items.get(position).getImg_type() == 0) {
             // 사진 추가 메뉴를 띄워준다.
             new AlertDialog.Builder(mContext)
@@ -121,7 +121,6 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
                                     Intent intent;
 
                                     switch(which)
@@ -136,11 +135,36 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                                         case 2:
                                             intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                                             ImgPathMaker uriPath = new ImgPathMaker(mContext);
-                                            intent.putExtra(MediaStore.EXTRA_OUTPUT, uriPath.makeUri());
+                                            cameraImageUri = uriPath.makeUri();
+                                            intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
                                             ((Activity)mContext).startActivityForResult(intent, PICK_FROM_CAMERA);
+
                                             break;
                                         //사진 URL 입력
                                         case 3:
+                                            LayoutInflater layoutInflaterAndroid = LayoutInflater.from(mContext);
+                                            View mView = layoutInflaterAndroid.inflate(R.layout.url_input_dialog, null);
+                                            AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(mContext);
+                                            alertDialogBuilderUserInput.setView(mView);
+
+                                            final EditText userInputDialogEditText = (EditText) mView.findViewById(R.id.urlInputDialog);
+                                            alertDialogBuilderUserInput
+                                                    .setCancelable(false)
+                                                    .setPositiveButton("추가", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialogBox, int id) {
+                                                            if(userInputDialogEditText.getText().toString().length() != 0)
+                                                                add(new AttachedImg(1, userInputDialogEditText.getText().toString()));
+                                                        }
+                                                    })
+                                                    .setNegativeButton("취소",
+                                                            new DialogInterface.OnClickListener() {
+                                                                public void onClick(DialogInterface dialogBox, int id) {
+                                                                    dialogBox.cancel();
+                                                                }
+                                                            });
+
+                                            AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
+                                            alertDialogAndroid.show();
                                             break;
                                     }
                                 }
@@ -152,5 +176,9 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
         else {
             // 사진을 삭제하겠냐는 메시지를 띄워준다.
         }
+    }
+
+    public Uri getCameraImageUri() {
+        return cameraImageUri;
     }
 }

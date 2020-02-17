@@ -3,7 +3,6 @@
     package="com.example.lineplusmemoapp">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -33,9 +32,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
         </provider>
-
-        출처: https://kyome.tistory.com/9 [KYOME]
-
     </application>
+
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
 
 </manifest>
