@@ -159,7 +159,11 @@ public class MemoEditActivity extends AppCompatActivity {
                 break;
             case PICK_FROM_CAMERA:
                 // 바로 촬영하는 경우
-                if(data != null && data.getExtras() != null) {
+                Uri temp1 = (Uri)data.getExtras().get("data");
+                String temp2 = (String)data.getExtras().get("data");
+
+
+                if(data != null && data.getExtras().get("data") != null) {
                     Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
                 }
                 else
