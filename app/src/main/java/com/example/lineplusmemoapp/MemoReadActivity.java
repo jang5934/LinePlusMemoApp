@@ -111,9 +111,12 @@ public class MemoReadActivity extends AppCompatActivity {
                                 openHelper.create();
 
                                 // delete cascade로 구현했기 때문에 메모를 지우기 전 이미지 경로들을 참고하여 이미지부터 삭제한다.
+                                // 사진이 local에 저장된 경우에만 사진 삭제 수행
                                 Cursor iCursor = openHelper.selectImgPathWhereMid(memo_id);
                                 while(iCursor.moveToNext()) {
-                                    new File(iCursor.getString(iCursor.getColumnIndex("path"))).delete();
+                                    String filePath = iCursor.getString(iCursor.getColumnIndex("path"));
+                                    if(filePath.startsWith("/storage/"))
+                                        new File(filePath).delete();
                                 }
 
                                 // 그리고 나서 메모를 삭제한다.

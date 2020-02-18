@@ -192,8 +192,12 @@ public class MemoEditActivity extends AppCompatActivity {
             // iid로 사진경로를 가지고 온 뒤
             Cursor tempCursor = openHelper.selectImgPathWhereIid(transformedIid);
             tempCursor.moveToFirst();
+
             // 사진 삭제 및 해당 iid 컬럼 삭제
-            new File(tempCursor.getString(tempCursor.getColumnIndex("path"))).delete();
+            // 사진이 local에 저장된 경우에만 사진 삭제 수행
+            String filePath = tempCursor.getString(tempCursor.getColumnIndex("path"));
+            if(filePath.startsWith("/storage/"))
+                new File(filePath).delete();
             openHelper.deleteImgIid(transformedIid);
         }
         openHelper.close();
