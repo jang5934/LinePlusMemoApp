@@ -179,7 +179,6 @@ public class MemoEditActivity extends AppCompatActivity {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-
             openHelper.insertImgPath(memo_id, tempDestFIlePath);
         }
 
@@ -187,8 +186,15 @@ public class MemoEditActivity extends AppCompatActivity {
         i = beDeletedIidList.iterator();
         while (i.hasNext()) {
             // DB에서 삭제될 사진들의 iid 벡터
-            // iid로 사진경로를 가지고 온 뒤 사진 삭제 및 해당 iid 컬럼 삭제
-            openHelper.deleteImgPath(Integer.parseInt((String)i.next()));
+            String tempBeDeletedIid = (String)i.next();
+            int transformedIid = Integer.parseInt(tempBeDeletedIid);
+
+            // iid로 사진경로를 가지고 온 뒤
+            Cursor tempCursor = openHelper.selectImgPathWhereIid(transformedIid);
+            tempCursor.moveToFirst();
+            // 사진 삭제 및 해당 iid 컬럼 삭제
+            new File(tempCursor.getString(tempCursor.getColumnIndex("path"))).delete();
+            openHelper.deleteImgIid(transformedIid);
         }
         openHelper.close();
 

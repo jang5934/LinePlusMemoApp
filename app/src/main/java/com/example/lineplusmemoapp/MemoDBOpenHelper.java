@@ -88,19 +88,19 @@ public class MemoDBOpenHelper {
         return mDB.query(MemoDB.DBReference._TABLENAME0, null, MemoDB.DBReference.MID + "=?", new String[]{Integer.toString(mid)}, null, null, null);
     }
 
-    public Cursor selectImgPath() {
-        return mDB.query(MemoDB.DBReference._TABLENAME1, null, null, null, null, null, null);
-    }
-
     public Cursor selectImgPathWhereMid(int mid) {
         return mDB.query(MemoDB.DBReference._TABLENAME1, null, MemoDB.DBReference.MID + "=?", new String[]{Integer.toString(mid)}, null, null, null);
+    }
+
+    public Cursor selectImgPathWhereIid(int iid) {
+        return mDB.query(MemoDB.DBReference._TABLENAME1, null, MemoDB.DBReference.IID + "=?", new String[]{Integer.toString(iid)}, null, null, null);
     }
 
     public void deleteMemo(int mid) {
         mDB.delete(MemoDB.DBReference._TABLENAME0, MemoDB.DBReference.MID + "=?", new String[]{Integer.toString(mid)});
     }
 
-    public void deleteImgPath(int iid) {
+    public void deleteImgIid(int iid) {
         mDB.delete(MemoDB.DBReference._TABLENAME1, MemoDB.DBReference.IID + "=?", new String[]{Integer.toString(iid)});
     }
 

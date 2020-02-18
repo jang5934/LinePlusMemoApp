@@ -13,6 +13,8 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+
 public class MemoReadActivity extends AppCompatActivity {
 
     private int memo_id;
@@ -107,6 +109,14 @@ public class MemoReadActivity extends AppCompatActivity {
                                 openHelper = new MemoDBOpenHelper(MemoReadActivity.this);
                                 openHelper.open();
                                 openHelper.create();
+
+                                // delete cascade로 구현했기 때문에 메모를 지우기 전 이미지 경로들을 참고하여 이미지부터 삭제한다.
+                                Cursor iCursor = openHelper.selectImgPathWhereMid(memo_id);
+                                while(iCursor.moveToNext()) {
+                                    new File(iCursor.getString(iCursor.getColumnIndex("path"))).delete();
+                                }
+
+                                // 그리고 나서 메모를 삭제한다.
                                 openHelper.deleteMemo(memo_id);
                                 myToast = Toast.makeText(MemoReadActivity.this, "메모가 삭제되었습니다.", Toast.LENGTH_SHORT);
                                 myToast.show();
