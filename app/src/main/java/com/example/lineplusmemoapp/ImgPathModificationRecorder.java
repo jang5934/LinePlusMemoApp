@@ -1,7 +1,5 @@
 package com.example.lineplusmemoapp;
 
-import android.widget.ProgressBar;
-
 import java.util.Vector;
 
 public class ImgPathModificationRecorder {
