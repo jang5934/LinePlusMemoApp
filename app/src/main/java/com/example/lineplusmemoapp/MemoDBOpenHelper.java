@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 
 public class MemoDBOpenHelper {
     private static final String DATABASE_NAME = "content.db";
@@ -31,6 +32,19 @@ public class MemoDBOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + MemoDB.DBReference._TABLENAME0);
             db.execSQL("DROP TABLE IF EXISTS " + MemoDB.DBReference._TABLENAME1);
             onCreate(db);
+        }
+
+        @Override
+        public void onConfigure(SQLiteDatabase db) {
+            super.onConfigure(db);
+            if(!db.isReadOnly()) {
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    String query = String.format("PRAGMA foreign_keys = %s", "ON");
+                    db.execSQL(query);
+                } else {
+                    db.setForeignKeyConstraintsEnabled(true);
+                }
+            }
         }
     }
 

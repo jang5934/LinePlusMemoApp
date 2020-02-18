@@ -24,7 +24,6 @@ import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 
 public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHolder> implements OnAttachedImgClickListener{
@@ -32,8 +31,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
     private List<AttachedImg> items = new ArrayList<>();
 
     // 저장 버튼이 눌렸을 때 반환할 추가/삭제할 이미지 정보 벡터
-    private Vector<String> beAddedPathList = new Vector<>();
-    private Vector<String> beDeletedIidList = new Vector<>();
+    ImgPathModificationRecorder imgPathModificationRecorder;
 
     private Context mContext;
     private Uri cameraImageUri;
@@ -43,6 +41,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
 
     public AttachedImgAdapter (@NonNull Context context) {
         mContext = context;
+        imgPathModificationRecorder = new ImgPathModificationRecorder();
     }
 
     @NonNull
@@ -65,8 +64,19 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
 
     public void add(AttachedImg item) {
         items.add(item);
-        if(item.getImg_type() > 1)
-            beAddedPathList.add(item.getImgPath());
+
+        // 새로 추가되는 사진인 경우
+        // 타입 별로 분류하여 앞으로 지정된 디렉토리에 복사 또한 해야하는 사진인지 분류하여 저장한다.
+        switch(item.getImg_type())
+        {
+            case 2 : // 사진첩에서 선택한 경우
+                imgPathModificationRecorder.addBeAddedAndCopiedPath(item.getImgPath());
+                break;
+            case 3: // 사진 URL이 있거나 카메라로 찍은 경우 복사가 필요 없는 벡터에 넣어준다.
+            case 4:
+                imgPathModificationRecorder.addBeAddedPath(item.getImgPath());
+                break;
+        }
         // 뷰에 바로 반영해줌
         notifyDataSetChanged();
     }
@@ -187,8 +197,23 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
             .setPositiveButton("제거", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if(items.get(tPos).getImg_type() == 1)
-                        beDeletedIidList.add(Integer.toString(items.get(tPos).getIid()));
+                    if(items.get(tPos).getImg_type() == 1) // DB에서 삭제할 필요가 있으므로
+                        imgPathModificationRecorder.addBeDeletedIid(Integer.toString(items.get(tPos).getIid()));
+                    else if(items.get(tPos).getImg_type() > 1) // DB에는 추가돼있진 않지만 현재 beAddedPathList에 추가돼있으므로 빼두어야함
+                    {
+                        String derivedPath = items.get(tPos).getImgPath();
+                        int tempCnt = 0;
+                        switch(items.get(tPos).getImg_type())
+                        {
+                            case 2:
+                                imgPathModificationRecorder.removeFromBeAddedAndCopiedPath(derivedPath);
+                                break;
+                            case 3:
+                            case 4:
+                                imgPathModificationRecorder.removeFromBeAddedPath(derivedPath);
+                                break;
+                        }
+                    }
                     items.remove(items.get(tPos));
                     // 뷰에 바로 반영해줌
                     notifyDataSetChanged();
@@ -203,11 +228,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
         return cameraImageUri;
     }
 
-    public Vector<String> getBeAddedPathList() {
-        return beAddedPathList;
-    }
-
-    public Vector<String> getBeDeletedIidList() {
-        return beDeletedIidList;
+    public ImgPathModificationRecorder getImgPathModificationRecorder() {
+        return imgPathModificationRecorder;
     }
 }

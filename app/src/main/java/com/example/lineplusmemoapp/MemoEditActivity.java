@@ -2,6 +2,7 @@ package com.example.lineplusmemoapp;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -10,12 +11,20 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -29,6 +38,10 @@ public class MemoEditActivity extends AppCompatActivity {
     private AttachedImgAdapter attached_imgs_adapter;
     private RecyclerView attached_imgs_view;
     private LinearLayoutManager attached_imgs_layout_manager;
+    private ImgPathModificationRecorder imgPathModificationRecorder;
+    Vector<String> beAddedPathList;
+    Vector<String> beAddedAndCopiedPathList;
+    Vector<String> beDeletedIidList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +104,6 @@ public class MemoEditActivity extends AppCompatActivity {
             } finally {
                 iCursor.close();
             }
-            //attached_imgs_adapter.add(new AttachedImg(3, "/sdcard/memo_app_images/20200216_200140.png"));
-            //attached_imgs_adapter.add(new AttachedImg(4, "https://raw.githubusercontent.com/bumptech/glide/master/static/glide_logo.png"));
             iCursor.close();
             mCursor.close();
         }
@@ -126,29 +137,15 @@ public class MemoEditActivity extends AppCompatActivity {
         openHelper.open();
         openHelper.create();
 
-        Vector<String> beAddedPathList = attached_imgs_adapter.getBeAddedPathList();
-        Vector<String> beDeletedIidList = attached_imgs_adapter.getBeDeletedIidList();
-
-        Iterator i = beAddedPathList.iterator();
-        while (i.hasNext()) {
-            // 새롭게 추가될 사진들의 경로 벡터
-            // 새로 추가되는 사진들의 경우, 현재 가지고있는 경로를 참고하여 특정 위치로 사진들을 복사하고,
-            // 복사한 사진들의 경로를 DB에 넣어주도록 함.
-            openHelper.insertImgPath(memo_id, (String)i.next());
-        }
-        i = beDeletedIidList.iterator();
-        while (i.hasNext()) {
-            // DB에서 삭제될 사진들의 iid 벡터
-            // iid로 사진경로를 가지고 온 뒤 사진 삭제 및 해당 iid 컬럼 삭제
-            openHelper.deleteImgPath(Integer.parseInt((String)i.next()));
-        }
-
         // 액션 바 위의 저장 버튼이 눌렸을 때,
         switch (item.getItemId()) {
             case R.id.action_save :
                 // 만약 현재 기능이 '새 메모 추가'였을 경우
                 if(type.equals("add_memo")) {
                     openHelper.insertMemo(tSubjcet, tContent);
+                    Cursor mCursor = openHelper.selectMemo();
+                    mCursor.moveToNext();
+                    memo_id = mCursor.getInt(mCursor.getColumnIndex("mid"));
                     myToast = Toast.makeText(MemoEditActivity.this, "새 메모가 추가되었습니다.", Toast.LENGTH_SHORT);
                     myToast.show();
                     finish();
@@ -160,10 +157,45 @@ public class MemoEditActivity extends AppCompatActivity {
                     myToast.show();
                     finish();
                 }
-            default :
-                openHelper.close();
-                return super.onOptionsItemSelected(item);
         }
+
+        imgPathModificationRecorder = attached_imgs_adapter.getImgPathModificationRecorder();
+        beAddedPathList = imgPathModificationRecorder.getBeAddedPathList();
+        Iterator i = beAddedPathList.iterator();
+        while (i.hasNext()) {
+            // 새롭게 추가될 사진들의 경로 벡터
+            // 카메라로 찍거나 URL 경로만 입력된 사진들에 대한 Path
+            // DB 기록만 필요함
+            openHelper.insertImgPath(memo_id, (String)i.next());
+        }
+
+        beAddedAndCopiedPathList = imgPathModificationRecorder.getBeAddedAndCopiedPathList();
+        i = beAddedAndCopiedPathList.iterator();
+        while (i.hasNext()) {
+            // 새롭게 추가될 사진들의 경로 벡터
+            // 사진첩에서 선택된 사진들의 경로 벡터
+            // 우선 사진을 지정위치로 복사한 뒤, 지정 위치의 경로를 DB에 등록해준다.
+
+            String tempDestFIlePath = null;
+            try {
+                tempDestFIlePath = copyImageFromPath((String) i.next());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            openHelper.insertImgPath(memo_id, tempDestFIlePath);
+        }
+
+        beDeletedIidList = imgPathModificationRecorder.getBeDeletedIidList();
+        i = beDeletedIidList.iterator();
+        while (i.hasNext()) {
+            // DB에서 삭제될 사진들의 iid 벡터
+            // iid로 사진경로를 가지고 온 뒤 사진 삭제 및 해당 iid 컬럼 삭제
+            openHelper.deleteImgPath(Integer.parseInt((String)i.next()));
+        }
+        openHelper.close();
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -208,5 +240,58 @@ public class MemoEditActivity extends AppCompatActivity {
             result = "Not found";
         }
         return result;
+    }
+
+    public String copyImageFromPath (String path) throws FileNotFoundException {
+        String sourceFilePathStr = path;
+        File sourceFilePath = new File(sourceFilePathStr);
+
+        // 기존 이미지 파일 이름과 확장자 구분
+        String destFileFullName = sourceFilePath.getName();
+        int lastDotIdx = destFileFullName.lastIndexOf(".");
+        String destFileNameStr = destFileFullName.substring(0, lastDotIdx);
+        String destFileExtStr = destFileFullName.substring(lastDotIdx);
+
+        // 메모 어플의 이미지 저장소
+        File imagesFolder = new File(Environment.getExternalStorageDirectory(), "memo_app_images");
+        imagesFolder.mkdirs();
+
+        // 중복 검사
+        File tempDestPath = null;
+        int rn;
+        do {
+            rn = (int)(Math.random() * 1000000);
+            destFileFullName = destFileNameStr  + "_" + Integer.toString(rn) + destFileExtStr;
+            tempDestPath = new File(imagesFolder.getPath() + "/" + destFileFullName);
+        } while(!tempDestPath.exists());
+
+        // 복사될 이미지 경로
+        File destFilePath = new File(imagesFolder, destFileFullName);
+
+        // 파일스트림을 통한 이미지 복사
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+
+        try {
+            fis = new FileInputStream(sourceFilePath);
+            fos = new FileOutputStream(destFilePath);
+            byte[] b = new byte[4096];
+            int cnt = 0;
+            while((cnt=fis.read(b)) != -1){
+                fos.write(b, 0, cnt);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 방금 저장된 복사된 이미지의 절대경로 반환
+        return imagesFolder.getPath() + "/" + destFileFullName;
     }
 }

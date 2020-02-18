@@ -20,5 +20,6 @@ public final class MemoDB {
                 +IID+" integer primary key autoincrement, "
                 +MID+" integer references tb_memo (mid) on delete cascade,"
                 +PATH+" text not null );";
+
     }
 }
