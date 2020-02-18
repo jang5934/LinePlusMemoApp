@@ -84,12 +84,15 @@ public class MemoEditActivity extends AppCompatActivity {
 
             // 현재 mid에 포함되는 이미지들을 선택
             Cursor iCursor = openHelper.selectImgPathWhereMid(memo_id);
-
-
-            // TODO 사진추가기능 만들 때 db에서 불러오는건 타입을 1로 해서 추가해야함.
-
-            attached_imgs_adapter.add(new AttachedImg(2, "/sdcard/Images/20200216_200140.png"));
-            attached_imgs_adapter.add(new AttachedImg(2, "https://raw.githubusercontent.com/bumptech/glide/master/static/glide_logo.png"));
+            try {
+                while (iCursor.moveToNext()) {
+                    attached_imgs_adapter.add(new AttachedImg(1, iCursor.getString(iCursor.getColumnIndex("path")), Integer.parseInt(iCursor.getString(iCursor.getColumnIndex("iid")))));
+                }
+            } finally {
+                iCursor.close();
+            }
+            //attached_imgs_adapter.add(new AttachedImg(3, "/sdcard/memo_app_images/20200216_200140.png"));
+            //attached_imgs_adapter.add(new AttachedImg(4, "https://raw.githubusercontent.com/bumptech/glide/master/static/glide_logo.png"));
             iCursor.close();
             mCursor.close();
         }
@@ -131,12 +134,13 @@ public class MemoEditActivity extends AppCompatActivity {
             // 새롭게 추가될 사진들의 경로 벡터
             // 새로 추가되는 사진들의 경우, 현재 가지고있는 경로를 참고하여 특정 위치로 사진들을 복사하고,
             // 복사한 사진들의 경로를 DB에 넣어주도록 함.
+            openHelper.insertImgPath(memo_id, (String)i.next());
         }
-
         i = beDeletedIidList.iterator();
         while (i.hasNext()) {
             // DB에서 삭제될 사진들의 iid 벡터
             // iid로 사진경로를 가지고 온 뒤 사진 삭제 및 해당 iid 컬럼 삭제
+            openHelper.deleteImgPath(Integer.parseInt((String)i.next()));
         }
 
         // 액션 바 위의 저장 버튼이 눌렸을 때,
@@ -157,6 +161,7 @@ public class MemoEditActivity extends AppCompatActivity {
                     finish();
                 }
             default :
+                openHelper.close();
                 return super.onOptionsItemSelected(item);
         }
     }
@@ -175,16 +180,16 @@ public class MemoEditActivity extends AppCompatActivity {
                 // 사진첩에서 가져오는 경우
                 dataUri = data.getData();
                 picturePath = getPath(getApplicationContext(), dataUri, requestCode);
+                attached_imgs_adapter.add(new AttachedImg(2, picturePath));
                 break;
             case PICK_FROM_CAMERA:
                 // 바로 촬영하는 경우
                 dataUri = attached_imgs_adapter.getCameraImageUri();
                 picturePath = dataUri.toString();
                 picturePath = "/storage/emulated/0/" + picturePath.substring(picturePath.indexOf("/external/") + 10);
-                Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
+                attached_imgs_adapter.add(new AttachedImg(3, picturePath));
                 break;
         }
-        attached_imgs_adapter.add(new AttachedImg(2, picturePath));
     }
 
     public static String getPath(Context context, Uri uri, int flag ) {

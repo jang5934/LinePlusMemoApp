@@ -110,6 +110,7 @@ public class MemoReadActivity extends AppCompatActivity {
                                 openHelper.deleteMemo(memo_id);
                                 myToast = Toast.makeText(MemoReadActivity.this, "메모가 삭제되었습니다.", Toast.LENGTH_SHORT);
                                 myToast.show();
+                                openHelper.close();
                                 finish();
                             }
                         })

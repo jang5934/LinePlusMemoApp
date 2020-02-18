@@ -53,25 +53,28 @@ public class MainActivity extends AppCompatActivity {
         // 리스트 아이템 추가 파트
         Cursor mCursor = openHelper.selectMemo();
 
-        while(mCursor.moveToNext()) {
-            int tMid = mCursor.getInt(mCursor.getColumnIndex("mid"));
-            String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
-            String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
+        try{
+            while(mCursor.moveToNext()) {
+                int tMid = mCursor.getInt(mCursor.getColumnIndex("mid"));
+                String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
+                String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
 
-            Cursor iCursor = openHelper.selectImgPath();
+                Cursor iCursor = openHelper.selectImgPathWhereMid(tMid);
 
-            if(iCursor.getCount() == 0) {
-                adapter.addItem(tMid, ContextCompat.getDrawable(this, R.mipmap.ic_img_empty), tSubjcet, tContent);
+                if(iCursor.getCount() == 0) {
+                    adapter.addItem(tMid, ContextCompat.getDrawable(this, R.mipmap.ic_img_empty), tSubjcet, tContent);
+                }
+                else {
+                    iCursor.moveToFirst();
+                    String img_path = iCursor.getString(iCursor.getColumnIndex("path"));
+                    Uri img_uri = Uri.parse(img_path);
+                    adapter.addItem(tMid, img_uri, tSubjcet, tContent);
+                }
+                iCursor.close();
             }
-            else {
-                iCursor.moveToFirst();
-                String img_path = iCursor.getString(iCursor.getColumnIndex("path"));
-                Uri img_uri = Uri.parse(img_path);
-                adapter.addItem(tMid, img_uri, tSubjcet, tContent);
-            }
-            iCursor.close();
+        } finally {
+            mCursor.close();
         }
-
         // 리스트 뷰 아이템의 이벤트 리스너
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }) ;
-        mCursor.close();
+        openHelper.close();
     }
 
     // 메모 리스트 창 액션 바

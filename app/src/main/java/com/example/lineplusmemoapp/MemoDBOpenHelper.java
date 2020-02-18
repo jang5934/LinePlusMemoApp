@@ -84,12 +84,10 @@ public class MemoDBOpenHelper {
 
     public void deleteMemo(int mid) {
         mDB.delete(MemoDB.DBReference._TABLENAME0, MemoDB.DBReference.MID + "=?", new String[]{Integer.toString(mid)});
-        mDB.close();
     }
 
     public void deleteImgPath(int iid) {
         mDB.delete(MemoDB.DBReference._TABLENAME1, MemoDB.DBReference.IID + "=?", new String[]{Integer.toString(iid)});
-        mDB.close();
     }
 
     public int updateMemo(int mid, String subject, String content) {

@@ -17,7 +17,7 @@ public class ImgPathMaker {
     }
 
     public Uri makeUri() {
-        File imagesFolder = new File(Environment.getExternalStorageDirectory(), "Images");
+        File imagesFolder = new File(Environment.getExternalStorageDirectory(), "memo_app_images");
         imagesFolder.mkdirs();
         File image = new File(imagesFolder, new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".png");
         Uri mCurrentPhotoPath = FileProvider.getUriForFile(c, "com.example.lineplusmemoapp.fileprovider", image);

@@ -65,7 +65,8 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
 
     public void add(AttachedImg item) {
         items.add(item);
-        beAddedPathList.add(item.getImgPath());
+        if(item.getImg_type() > 1)
+            beAddedPathList.add(item.getImgPath());
         // 뷰에 바로 반영해줌
         notifyDataSetChanged();
     }
@@ -157,7 +158,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                                                     .setPositiveButton("추가", new DialogInterface.OnClickListener() {
                                                         public void onClick(DialogInterface dialogBox, int id) {
                                                             if(userInputDialogEditText.getText().toString().length() != 0)
-                                                                add(new AttachedImg(2, userInputDialogEditText.getText().toString()));
+                                                                add(new AttachedImg(4, userInputDialogEditText.getText().toString()));
                                                         }
                                                     })
                                                     .setNegativeButton("취소",
@@ -179,7 +180,6 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
         // 선택된 사진의 타입이 편집 페이지에 올라와있는 사진인 경우
         else {
             // 사진을 삭제하겠냐는 메시지를 띄워준다.
-
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
             final int tPos = position;
             builder.setTitle("첨부 사진 제거")
