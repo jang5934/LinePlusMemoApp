@@ -9,11 +9,11 @@ public class ListViewItem {
     private Uri imageUri;
     private String subjectStr ;
     private String previewStr ;
+    private int pathType;
 
     public void setMid(int id) {
         mid = id;
     }
-
     public void setIcon(Drawable icon) {
         iconDrawable = icon;
     }
@@ -23,9 +23,8 @@ public class ListViewItem {
     public void setSubject(String subject) {
         subjectStr = subject;
     }
-    public void setPreview(String preview) {
-        previewStr = preview;
-    }
+    public void setPreview(String preview) { previewStr = preview; }
+    public void setPathType(int pathtype) { pathType = pathtype; }
 
     public int getMid() {
         return this.mid;
@@ -42,4 +41,5 @@ public class ListViewItem {
     public String getPreview() {
         return this.previewStr ;
     }
+    public int getPathType() { return this.pathType; }
 }

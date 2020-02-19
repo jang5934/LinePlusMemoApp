@@ -73,10 +73,11 @@ public class MemoDBOpenHelper {
         return mDB.insert(MemoDB.DBReference._TABLENAME0, null, values);
     }
 
-    public long insertImgPath(int mid, String path) {
+    public long insertImgPath(int mid, String path, int path_type) {
         ContentValues values = new ContentValues();
         values.put(MemoDB.DBReference.MID, mid);
         values.put(MemoDB.DBReference.PATH, path);
+        values.put(MemoDB.DBReference.PATHTYPE, path_type);
         return mDB.insert(MemoDB.DBReference._TABLENAME1, null, values);
     }
 

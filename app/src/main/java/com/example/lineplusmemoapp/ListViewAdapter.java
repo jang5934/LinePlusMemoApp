@@ -50,10 +50,13 @@ public class ListViewAdapter extends BaseAdapter {
 
         // 아이템 내 각 위젯에 데이터 반영
         if(listViewItem.getIcon() == null) {
-            Glide.with(iconImageView)
-                    .load(listViewItem.getImageUri())
-                    .error(R.mipmap.error_image)
-                    .into(iconImageView);
+            if(listViewItem.getPathType() < 3)
+                iconImageView.setImageURI(listViewItem.getImageUri());
+            else
+                Glide.with(iconImageView)
+                        .load(listViewItem.getImageUri())
+                        .error(R.mipmap.error_image)
+                        .into(iconImageView);
         }
         else
             iconImageView.setImageDrawable(listViewItem.getIcon());
@@ -92,7 +95,7 @@ public class ListViewAdapter extends BaseAdapter {
         listViewItemList.add(item);
     }
 
-    public void addItem(int id, Uri imgpath, String subject, String preview) {
+    public void addItem(int id, Uri imgpath, String subject, String preview, int path_type) {
         ListViewItem item = new ListViewItem();
 
         item.setMid(id);
@@ -100,6 +103,7 @@ public class ListViewAdapter extends BaseAdapter {
         item.setImageuri(imgpath);
         item.setSubject(subject);
         item.setPreview(preview);
+        item.setPathType(path_type);
 
         listViewItemList.add(item);
     }

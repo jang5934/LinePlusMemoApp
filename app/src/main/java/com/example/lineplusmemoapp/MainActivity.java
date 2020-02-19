@@ -67,8 +67,9 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     iCursor.moveToFirst();
                     String img_path = iCursor.getString(iCursor.getColumnIndex("path"));
+                    int img_path_type = iCursor.getInt(iCursor.getColumnIndex("path_type"));
                     Uri img_uri = Uri.parse(img_path);
-                    adapter.addItem(tMid, img_uri, tSubjcet, tContent);
+                    adapter.addItem(tMid, img_uri, tSubjcet, tContent, img_path_type);
                 }
                 iCursor.close();
             }

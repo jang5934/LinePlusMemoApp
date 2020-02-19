@@ -15,11 +15,12 @@ public final class MemoDB {
 
         public static final String IID = "iid";
         public static final String PATH = "path";
+        public static final String PATHTYPE = "path_type";
         public static final String _TABLENAME1 = "tb_img_path";
         public static final String _CREATE1 = "create table if not exists "+_TABLENAME1+"("
                 +IID+" integer primary key autoincrement, "
                 +MID+" integer references tb_memo (mid) on delete cascade,"
-                +PATH+" text not null );";
-
+                +PATH+" text not null,"
+                +PATHTYPE + " integer not null );";
     }
 }

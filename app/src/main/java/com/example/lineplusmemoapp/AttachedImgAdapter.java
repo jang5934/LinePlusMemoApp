@@ -70,11 +70,13 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
         switch(item.getImg_type())
         {
             case 2 : // 사진첩에서 선택한 경우
-                imgPathModificationRecorder.addBeAddedAndCopiedPath(item.getImgPath());
+                imgPathModificationRecorder.addBeAddedPath(item.getImgPath(), 1);
                 break;
-            case 3: // 사진 URL이 있거나 카메라로 찍은 경우 복사가 필요 없는 벡터에 넣어준다.
-            case 4:
-                imgPathModificationRecorder.addBeAddedPath(item.getImgPath());
+            case 3: // 카메라로 찍은 경우
+                imgPathModificationRecorder.addBeAddedPath(item.getImgPath(), 2);
+                break;
+            case 4: // URL 입력을 받은 경우
+                imgPathModificationRecorder.addBeAddedPath(item.getImgPath(), 3);
                 break;
         }
         // 뷰에 바로 반영해줌
@@ -204,17 +206,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                     else if(items.get(tPos).getImg_type() > 1) // DB에는 추가돼있진 않지만 현재 beAddedPathList에 추가돼있으므로 빼두어야함
                     {
                         String derivedPath = items.get(tPos).getImgPath();
-                        int tempCnt = 0;
-                        switch(items.get(tPos).getImg_type())
-                        {
-                            case 2:
-                                imgPathModificationRecorder.removeFromBeAddedAndCopiedPath(derivedPath);
-                                break;
-                            case 3:
-                            case 4:
-                                imgPathModificationRecorder.removeFromBeAddedPath(derivedPath);
-                                break;
-                        }
+                        imgPathModificationRecorder.removeFromBeAddedPath(derivedPath);
                     }
                     items.remove(items.get(tPos));
                     // 뷰에 바로 반영해줌

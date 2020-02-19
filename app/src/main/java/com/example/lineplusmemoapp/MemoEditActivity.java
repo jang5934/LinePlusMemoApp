@@ -36,8 +36,7 @@ public class MemoEditActivity extends AppCompatActivity {
     private RecyclerView attached_imgs_view;
     private LinearLayoutManager attached_imgs_layout_manager;
     private ImgPathModificationRecorder imgPathModificationRecorder;
-    Vector<String> beAddedPathList;
-    Vector<String> beAddedAndCopiedPathList;
+    Vector<CustomImagePath> beAddedPathList;
     Vector<String> beDeletedIidList;
 
     @Override
@@ -159,27 +158,25 @@ public class MemoEditActivity extends AppCompatActivity {
         imgPathModificationRecorder = attached_imgs_adapter.getImgPathModificationRecorder();
         beAddedPathList = imgPathModificationRecorder.getBeAddedPathList();
         Iterator i = beAddedPathList.iterator();
+        int path_type = 1;
+        CustomImagePath temp_path = null;
         while (i.hasNext()) {
             // 새롭게 추가될 사진들의 경로 벡터
-            // 카메라로 찍거나 URL 경로만 입력된 사진들에 대한 Path
-            // DB 기록만 필요함
-            openHelper.insertImgPath(memo_id, (String)i.next());
-        }
+            // 사진첩에서 선택된 경우는 1
+            // 카메라로 찍은 경우는 2
+            // URL 경로로 입력된 경우는 3
+            temp_path = (CustomImagePath)i.next();
 
-        beAddedAndCopiedPathList = imgPathModificationRecorder.getBeAddedAndCopiedPathList();
-        i = beAddedAndCopiedPathList.iterator();
-        while (i.hasNext()) {
-            // 새롭게 추가될 사진들의 경로 벡터
-            // 사진첩에서 선택된 사진들의 경로 벡터
-            // 우선 사진을 지정위치로 복사한 뒤, 지정 위치의 경로를 DB에 등록해준다.
-
-            String tempDestFIlePath = null;
-            try {
-                tempDestFIlePath = copyImageFromPath((String) i.next());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            // 사진첩에서 선택된 경우 특정 위치로 복사시켜준다.
+            if(temp_path.pathType == 1) {
+                String tempDestFIlePath = null;
+                try {
+                    tempDestFIlePath = copyImageFromPath(temp_path.getImagePath());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
-            openHelper.insertImgPath(memo_id, tempDestFIlePath);
+            openHelper.insertImgPath(memo_id, temp_path.getImagePath(), temp_path.getPathType());
         }
 
         beDeletedIidList = imgPathModificationRecorder.getBeDeletedIidList();
