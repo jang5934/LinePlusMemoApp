@@ -195,7 +195,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
             final int tPos = position;
             builder.setTitle("첨부 사진 제거")
-            .setMessage("사진을 첨부 리스트에서 제거하시겠습니까?")
+            .setMessage("사진을 첨부 리스트에서 제거하시겠습니까?\n삭제 후 메모 저장을 누르기 전까지는 실제로 삭제되지 않습니다.")
             .setPositiveButton("제거", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

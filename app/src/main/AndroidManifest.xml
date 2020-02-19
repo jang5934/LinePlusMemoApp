@@ -19,7 +19,8 @@
         android:theme="@style/AppTheme">
         <activity android:name=".ImageViewerActivity"></activity>
         <activity android:name=".MemoReadActivity" />
-        <activity android:name=".MemoEditActivity" />
+        <activity android:name=".MemoEditActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
