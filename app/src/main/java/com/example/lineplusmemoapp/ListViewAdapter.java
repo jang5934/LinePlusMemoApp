@@ -10,6 +10,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class ListViewAdapter extends BaseAdapter {
@@ -47,8 +49,12 @@ public class ListViewAdapter extends BaseAdapter {
         ListViewItem listViewItem = listViewItemList.get(position);
 
         // 아이템 내 각 위젯에 데이터 반영
-        if(listViewItem.getIcon() == null)
-            iconImageView.setImageURI(listViewItem.getImageUri());
+        if(listViewItem.getIcon() == null) {
+            Glide.with(iconImageView)
+                    .load(listViewItem.getImageUri())
+                    .error(R.mipmap.error_image)
+                    .into(iconImageView);
+        }
         else
             iconImageView.setImageDrawable(listViewItem.getIcon());
 
