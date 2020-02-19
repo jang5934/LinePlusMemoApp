@@ -193,8 +193,10 @@ public class MemoEditActivity extends AppCompatActivity {
             // 사진 삭제 및 해당 iid 컬럼 삭제
             // 사진이 local에 저장된 경우에만 사진 삭제 수행
             String filePath = tempCursor.getString(tempCursor.getColumnIndex("path"));
-            if(filePath.startsWith("/storage/"))
-                new File(filePath).delete();
+            if(filePath.startsWith("/storage/")) {
+                File delFile = new File(filePath);
+                delFile.delete();
+            }
             openHelper.deleteImgIid(transformedIid);
         }
         openHelper.close();
