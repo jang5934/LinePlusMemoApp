@@ -52,6 +52,9 @@ public class ListViewAdapter extends BaseAdapter {
         else
             iconImageView.setImageDrawable(listViewItem.getIcon());
 
+        iconImageView.getLayoutParams().width = 200;
+        iconImageView.getLayoutParams().height = 200;
+
         subjectTextView.setText(listViewItem.getSubject());
         previewTextView.setText(listViewItem.getPreview());
 

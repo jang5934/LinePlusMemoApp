@@ -109,6 +109,8 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                     .error(R.mipmap.error_image)
                     .into(holder.mImg);
         }
+        holder.mImg.getLayoutParams().width = 200;
+        holder.mImg.getLayoutParams().height = 200;
     }
 
     @Override

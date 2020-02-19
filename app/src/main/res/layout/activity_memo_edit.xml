@@ -67,13 +67,6 @@
             android:layout_weight="1"
             android:gravity="center"/>
 
-        <ImageView
-            android:id="@+id/imageview_temp"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="center"/>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/attached_images_recycler_view"
             android:scrollbars="horizontal"

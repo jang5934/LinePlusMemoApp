@@ -46,13 +46,14 @@
             android:layout_weight="1"
             android:gravity="start|top"/>
 
-        <TextView
-            android:id="@+id/textView_content"
-            android:textSize="20sp"
-            android:gravity="top|start"
+        <LinearLayout
+            android:id="@+id/content_container"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="6"
-            android:importantForAutofill="no" />
+            android:orientation="vertical">
+
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

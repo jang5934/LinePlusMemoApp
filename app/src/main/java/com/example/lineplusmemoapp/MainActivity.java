@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 액션 바 이름 설정 - '메모 보기'
         ActionBar ab = getSupportActionBar();
-        ab.setTitle(R.string.read);
+        ab.setTitle(R.string.app_name);
     }
 
     @Override

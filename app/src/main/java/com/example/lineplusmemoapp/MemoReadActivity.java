@@ -8,10 +8,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 
@@ -49,29 +55,52 @@ public class MemoReadActivity extends AppCompatActivity {
 
         // 텍스트 뷰 따오기
         TextView tSubject = (TextView)findViewById(R.id.textView_subject);
-        TextView tContent = (TextView)findViewById(R.id.textView_content);
-
-        // 텍스트 뷰에 받아온 메모제목과 메모내용 적용
         tSubject.setText(curSubject);
+
+        // 읽기 페이지의 내용_레이아웃 따오기
+        LinearLayout content_container = findViewById(R.id.content_container);
+        content_container.removeAllViews();
+
+        TextView tContent = new TextView(this);
+        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT
+                , LinearLayout.LayoutParams.WRAP_CONTENT);
+        textParams.gravity = Gravity.TOP | Gravity.START;
+
+        tContent.setTextSize(20);
+        tContent.setLayoutParams(textParams);
         tContent.setText(curContent);
 
-        /*
-        for(int i = 0; i < 1; i++) {
-            // 읽기 페이지의 레이아웃 따오기
-            LinearLayout layout = (LinearLayout) findViewById(R.id.read_page_layout);
-            LinearLayout.LayoutParams layoutParams =
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            1f);
+        content_container.addView(tContent);
 
-            ImageView iv = new ImageView(this);  // 새로 추가할 imageView 생성
-            iv.setImageResource(R.drawable.ic_launcher_background);  // imageView에 내용 추가
-            iv.setLayoutParams(layoutParams);  // imageView layout 설정
-            layout.addView(iv); // 기존 linearLayout에 imageView 추가
+        LinearLayout.LayoutParams imageParams =
+                new LinearLayout.LayoutParams(300, 300, 1f);
+
+        Cursor iCursor = openhelper.selectImgPathWhereMid(memo_id);
+        try {
+            while (iCursor.moveToNext()) {
+                final ImageView iv = new ImageView(this);  // 새로 추가할 imageView 생성
+                final String imgPath = iCursor.getString(iCursor.getColumnIndex("path"));
+                iv.setLayoutParams(imageParams);  // imageView layout 설정
+                content_container.addView(iv); // 기존 linearLayout에 imageView 추가
+
+                iv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getApplicationContext(), ImageViewerActivity.class);
+                        intent.putExtra("path", imgPath);
+                        startActivity(intent);
+                    }
+                });
+
+                Glide.with(this)
+                        .load(imgPath)
+                        .error(R.mipmap.error_image)
+                        .into(iv);
+            }
+        } finally {
+            iCursor.close();
         }
-        */
-
-        // 커서 닫기
         mCursor.close();
     }
 

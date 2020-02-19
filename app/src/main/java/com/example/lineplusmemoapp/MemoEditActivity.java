@@ -270,7 +270,7 @@ public class MemoEditActivity extends AppCompatActivity {
             rn = (int)(Math.random() * 1000000);
             destFileFullName = destFileNameStr  + "_" + Integer.toString(rn) + destFileExtStr;
             tempDestPath = new File(imagesFolder.getPath() + "/" + destFileFullName);
-        } while(!tempDestPath.exists());
+        } while(tempDestPath.exists());
 
         // 복사될 이미지 경로
         File destFilePath = new File(imagesFolder, destFileFullName);
