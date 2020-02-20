@@ -12,8 +12,10 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,29 +51,75 @@ public class MemoReadActivity extends AppCompatActivity {
         Cursor mCursor = openhelper.selectMemoWhereMid(memo_id);
         mCursor.moveToNext();
 
-        // 해당하는 메모의 제목과 내용 임시저장
+        // 전체 틀 선택
+        RelativeLayout parentReadLayout = findViewById(R.id.read_page_layout);
+        parentReadLayout.removeAllViews();
+
+        // 제목 단 생성
+        LinearLayout subjectLayout = new LinearLayout(this);
+        subjectLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        RelativeLayout.LayoutParams subjectLayoutParams = new RelativeLayout.LayoutParams
+                (ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        subjectLayout.setLayoutParams(subjectLayoutParams);
+
+        // 각 텍스트뷰에 내용 삽입
+        TextView tSubject_left = new TextView(this);
+        tSubject_left.setText("제목 : ");
+        tSubject_left.setTextSize(20);
+
+        TextView tSubject_right = new TextView(this);
         String curSubject = mCursor.getString(mCursor.getColumnIndex("subject"));
+        tSubject_right.setText(curSubject);
+        tSubject_right.setTextSize(20);
+        tSubject_right.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+
+        LinearLayout.LayoutParams linearLayoutParams_left = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        linearLayoutParams_left.weight = 4;
+        tSubject_left.setLayoutParams(linearLayoutParams_left);
+
+        LinearLayout.LayoutParams linearLayoutParams_right = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        linearLayoutParams_right.weight = 1;
+        tSubject_right.setLayoutParams(linearLayoutParams_right);
+
+        // 제목 레이어에 텍스트뷰 삽입
+        subjectLayout.addView(tSubject_left);
+        subjectLayout.addView(tSubject_right);
+        // 전체 레이어에 제목 레이어 삽입
+        parentReadLayout.addView(subjectLayout);
+
+
+        // 내용 레이아웃 생성
+        LinearLayout contentLayout = new LinearLayout(this);
+        contentLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        RelativeLayout.LayoutParams contentLayoutParams = new RelativeLayout.LayoutParams
+                (ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+        subjectLayout.setId(View.generateViewId());
+        contentLayoutParams.addRule(RelativeLayout.BELOW, subjectLayout.getId());
+        contentLayout.setLayoutParams(contentLayoutParams);
+
+        // 내용 텍스트 뷰 생성
+        TextView tContent_left = new TextView(this);
+        tContent_left.setText("내용 : ");
+        tContent_left.setTextSize(20);
+        tContent_left.setLayoutParams(linearLayoutParams_left);
+
+        // 읽기 페이지의 내용_레이아웃 생성
+        LinearLayout content_container = new LinearLayout(this);
+        content_container.setOrientation(LinearLayout.VERTICAL);
+        content_container.setLayoutParams(linearLayoutParams_right);
+
+        // 내용 뷰 생성
+        TextView tContent_right = new TextView(this);
         String curContent = mCursor.getString(mCursor.getColumnIndex("content"));
+        tContent_right.setText(curContent);
+        tContent_right.setTextSize(20);
 
-        // 텍스트 뷰 따오기
-        TextView tSubject = (TextView)findViewById(R.id.textView_subject);
-        tSubject.setText(curSubject);
-
-        // 읽기 페이지의 내용_레이아웃 따오기
-        LinearLayout content_container = findViewById(R.id.content_container);
-        content_container.removeAllViews();
-
-        TextView tContent = new TextView(this);
-        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT
-                , LinearLayout.LayoutParams.WRAP_CONTENT);
-        textParams.gravity = Gravity.TOP | Gravity.START;
-
-        tContent.setTextSize(20);
-        tContent.setLayoutParams(textParams);
-        tContent.setText(curContent);
-
-        content_container.addView(tContent);
+        content_container.addView(tContent_right);
 
         LinearLayout.LayoutParams imageParams =
                 new LinearLayout.LayoutParams(300, 300, 1f);
@@ -102,6 +150,12 @@ public class MemoReadActivity extends AppCompatActivity {
             iCursor.close();
         }
         mCursor.close();
+
+        contentLayout.addView(tContent_left);
+        contentLayout.addView(content_container);
+
+        parentReadLayout.addView(contentLayout);
+
     }
 
     // 메모 읽기 창 액션 바 등록
@@ -144,7 +198,8 @@ public class MemoReadActivity extends AppCompatActivity {
                                 Cursor iCursor = openHelper.selectImgPathWhereMid(memo_id);
                                 while(iCursor.moveToNext()) {
                                     String filePath = iCursor.getString(iCursor.getColumnIndex("path"));
-                                    if(filePath.startsWith("/storage/"))
+                                    int path_type = iCursor.getInt(iCursor.getColumnIndex("path_type"));
+                                    if(path_type != 3)
                                         new File(filePath).delete();
                                 }
 

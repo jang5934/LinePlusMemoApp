@@ -180,8 +180,11 @@ public class MemoEditActivity extends AppCompatActivity {
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
+                openHelper.insertImgPath(memo_id, tempDestFIlePath, temp_path.getPathType());
             }
-            openHelper.insertImgPath(memo_id, tempDestFIlePath, temp_path.getPathType());
+            else {
+                openHelper.insertImgPath(memo_id, temp_path.getImagePath(), temp_path.getPathType());
+            }
         }
 
         beDeletedIidList = imgPathModificationRecorder.getBeDeletedIidList();
