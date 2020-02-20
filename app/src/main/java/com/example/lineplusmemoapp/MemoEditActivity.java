@@ -61,7 +61,6 @@ public class MemoEditActivity extends AppCompatActivity {
         }
 
         // 편집 페이지 내 사진 목록에 대한 리사이클러뷰 생성
-        // TODO 사진추가 리사이클러뷰 제작해야함.
         attached_imgs_adapter = new AttachedImgAdapter(this);
         attached_imgs_view = (RecyclerView)findViewById(R.id.attached_images_recycler_view);
         attached_imgs_layout_manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);

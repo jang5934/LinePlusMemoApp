@@ -7,8 +7,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -68,7 +68,8 @@ public class MemoReadActivity extends AppCompatActivity {
         // 각 텍스트뷰에 내용 삽입
         TextView tSubject_left = new TextView(this);
         tSubject_left.setText("제목 : ");
-        tSubject_left.setTextSize(20);
+        tSubject_left.setTextColor(Color.parseColor("#000000"));
+        tSubject_left.setTextSize(25);
 
         TextView tSubject_right = new TextView(this);
         String curSubject = mCursor.getString(mCursor.getColumnIndex("subject"));
@@ -105,7 +106,8 @@ public class MemoReadActivity extends AppCompatActivity {
         // 내용 텍스트 뷰 생성
         TextView tContent_left = new TextView(this);
         tContent_left.setText("내용 : ");
-        tContent_left.setTextSize(20);
+        tContent_left.setTextSize(25);
+        tContent_left.setTextColor(Color.parseColor("#000000"));
         tContent_left.setLayoutParams(linearLayoutParams_left);
 
         // 읽기 페이지의 내용_레이아웃 생성

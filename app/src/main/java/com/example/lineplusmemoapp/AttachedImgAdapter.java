@@ -83,8 +83,6 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
         notifyDataSetChanged();
     }
 
-
-    // TODO : 수정 필요함
     @Override
     public void onBindViewHolder(@NonNull AttachedImgViewHolder holder, int position) {
         AttachedImg item = items.get(position);
