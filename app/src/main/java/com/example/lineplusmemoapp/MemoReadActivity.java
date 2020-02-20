@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+// https://bumptech.github.io/glide/
 import com.bumptech.glide.Glide;
 
 import java.io.File;
@@ -143,7 +144,7 @@ public class MemoReadActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
-
+                // https://bumptech.github.io/glide/
                 Glide.with(this)
                         .load(imgPath)
                         .error(R.mipmap.error_image)

@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+// https://github.com/ParkSangGwon/TedPermission
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // https://github.com/ParkSangGwon/TedPermission
         tedPermission();
 
         // 액션 바 이름 설정 - '메모 보기'
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         ListViewAdapter adapter = new ListViewAdapter();
 
         // 리스트뷰 참조 및 Adapter달기
-        listview = (ListView) findViewById(R.id.memo_listview);
+        listview = findViewById(R.id.memo_listview);
         listview.setAdapter(adapter);
 
         // 리스트 아이템 추가 파트
@@ -114,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // https://github.com/ParkSangGwon/TedPermission
     private void tedPermission() {
         PermissionListener permissionListener = new PermissionListener() {
             @Override

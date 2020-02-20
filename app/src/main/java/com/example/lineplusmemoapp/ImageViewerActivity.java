@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 
+// https://bumptech.github.io/glide/
 import com.bumptech.glide.Glide;
 
 public class ImageViewerActivity extends AppCompatActivity {
@@ -24,6 +25,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String img_path = intent.getExtras().getString("path");
 
+        // https://bumptech.github.io/glide/
         Glide.with(this)
                 .load(img_path)
                 .error(R.mipmap.error_image)

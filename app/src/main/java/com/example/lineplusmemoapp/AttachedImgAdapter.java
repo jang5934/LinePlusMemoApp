@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+// https://bumptech.github.io/glide/
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,6 +94,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
 
         if(item.getImg_type() != 0) {
             String imgPath = item.getImgPath();
+            // https://bumptech.github.io/glide/
             Glide.with(holder.mImg)
                  .load(imgPath)
                  .listener(new RequestListener<Drawable>() {
@@ -180,7 +182,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                                                 mContext.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                                                         .edit()
                                                         .putBoolean("first_camera_run", false)
-                                                        .commit();
+                                                        .apply();
                                             } else {
                                                 intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                                                 ImgPathMaker uriPath = new ImgPathMaker(mContext);
@@ -196,7 +198,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                                             AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(mContext);
                                             alertDialogBuilderUserInput.setView(mView);
 
-                                            final EditText userInputDialogEditText = (EditText) mView.findViewById(R.id.urlInputDialog);
+                                            final EditText userInputDialogEditText = mView.findViewById(R.id.urlInputDialog);
                                             alertDialogBuilderUserInput
                                                     .setCancelable(false)
                                                     .setPositiveButton("추가", new DialogInterface.OnClickListener() {
