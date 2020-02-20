@@ -103,6 +103,11 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
                         tHolder.mProg.setVisibility(View.GONE);
+
+                        tHolder.mIconDel.setImageResource(R.mipmap.delete_icon);
+                        tHolder.mIconDel.getLayoutParams().width = 50;
+                        tHolder.mIconDel.getLayoutParams().height = 50;
+
                         return false;
                     }
                 })

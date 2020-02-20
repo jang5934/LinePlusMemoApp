@@ -11,11 +11,13 @@ public class AttachedImgViewHolder extends RecyclerView.ViewHolder {
     public ImageView mImg;
     public ProgressBar mProg;
     public OnAttachedImgClickListener mListener;
+    public ImageView mIconDel;
 
     public AttachedImgViewHolder(View itemView) {
         super(itemView);
 
         mImg = (ImageView) itemView.findViewById(R.id.attached_image);
+        mIconDel = (ImageView) itemView.findViewById(R.id.delete_icon);
         mProg = (ProgressBar) itemView.findViewById(R.id.progress);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
