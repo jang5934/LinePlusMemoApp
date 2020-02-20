@@ -173,7 +173,7 @@ public class MemoEditActivity extends AppCompatActivity {
             temp_path = (CustomImagePath)i.next();
             String tempDestFIlePath = null;
             // 사진첩에서 선택된 경우 특정 위치로 복사시켜준다.
-            if(temp_path.pathType == 1) {
+            if(temp_path.getPathType() == 1) {
                 try {
                     tempDestFIlePath = copyImageFromPath(temp_path.getImagePath());
                 } catch (FileNotFoundException e) {

@@ -1,8 +1,8 @@
 package com.example.lineplusmemoapp;
 
 public class CustomImagePath {
-    String imagePath;
-    int pathType;
+    private String imagePath;
+    private int pathType;
 
     public CustomImagePath(String p, int t) {
         this.imagePath = p;

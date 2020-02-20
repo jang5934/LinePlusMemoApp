@@ -1,5 +1,6 @@
 package com.example.lineplusmemoapp;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 public class ImgPathModificationRecorder {
@@ -21,10 +22,10 @@ public class ImgPathModificationRecorder {
     }
 
     public void removeFromBeAddedPath(String derivedPath) {
-        int tempCnt = 0;
-        while(tempCnt < beAddedPathList.size()) {
-            if(beAddedPathList.get(tempCnt).imagePath == derivedPath) {
-                beAddedPathList.remove(tempCnt);
+        Iterator i = beAddedPathList.iterator();
+        while(i.hasNext()) {
+            if(((CustomImagePath)i.next()).getImagePath() == derivedPath) {
+                i.remove();
                 break;
             }
         }
