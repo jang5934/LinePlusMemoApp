@@ -125,6 +125,7 @@ public class MemoReadActivity extends AppCompatActivity {
 
         LinearLayout.LayoutParams imageParams =
                 new LinearLayout.LayoutParams(300, 300, 1f);
+        imageParams.topMargin = 20;
 
         Cursor iCursor = openhelper.selectImgPathWhereMid(memo_id);
         try {

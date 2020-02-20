@@ -25,6 +25,8 @@ import com.bumptech.glide.request.target.Target;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHolder> implements OnAttachedImgClickListener{
 
@@ -104,18 +106,20 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
                         tHolder.mProg.setVisibility(View.GONE);
 
-                        tHolder.mIconDel.setImageResource(R.mipmap.delete_icon);
-                        tHolder.mIconDel.getLayoutParams().width = 50;
-                        tHolder.mIconDel.getLayoutParams().height = 50;
-
                         return false;
                     }
                 })
                     .error(R.mipmap.error_image)
                     .into(holder.mImg);
+
+            holder.mIconDel.getLayoutParams().width = 50;
+            holder.mIconDel.getLayoutParams().height = 50;
+            holder.mIconDel.setImageResource(R.mipmap.delete_icon);
         }
+
         holder.mImg.getLayoutParams().width = 200;
         holder.mImg.getLayoutParams().height = 200;
+
     }
 
     @Override
@@ -155,12 +159,35 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                                             break;
                                         //카메라 촬영
                                         case 2:
-                                            intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                            ImgPathMaker uriPath = new ImgPathMaker(mContext);
-                                            cameraImageUri = uriPath.makeUri();
-                                            intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
-                                            ((Activity)mContext).startActivityForResult(intent, PICK_FROM_CAMERA);
+                                            boolean firstrun = mContext.getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("first_camera_run", true);
+                                            if (firstrun){
+                                                AlertDialog.Builder first_camera_dialog_builder = new AlertDialog.Builder(mContext);
+                                                first_camera_dialog_builder.setTitle("첫 카메라 실행")
+                                                        .setMessage("기본 카메라 사용 시 사진촬영 후 확인버튼이 활성화되지 않는 경우가 있습니다.\n이 경우 카메라를 끄고 다시 카메라를 실행시키시기 바랍니다.")
+                                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                Intent fcintent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                                                ImgPathMaker uriPath = new ImgPathMaker(mContext);
+                                                                cameraImageUri = uriPath.makeUri();
+                                                                fcintent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+                                                                ((Activity)mContext).startActivityForResult(fcintent, PICK_FROM_CAMERA);
+                                                            }
+                                                        });
+                                                AlertDialog first_camera_dialog = first_camera_dialog_builder.create();
+                                                first_camera_dialog.show();
 
+                                                mContext.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                                        .edit()
+                                                        .putBoolean("first_camera_run", false)
+                                                        .commit();
+                                            } else {
+                                                intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                                ImgPathMaker uriPath = new ImgPathMaker(mContext);
+                                                cameraImageUri = uriPath.makeUri();
+                                                intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+                                                ((Activity)mContext).startActivityForResult(intent, PICK_FROM_CAMERA);
+                                            }
                                             break;
                                         //사진 URL 입력
                                         case 3:
