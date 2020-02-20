@@ -128,6 +128,12 @@ public class MemoEditActivity extends AppCompatActivity {
         tSubjcet = eSubject.getText().toString();
         tContent = eContent.getText().toString();
 
+        if(tSubjcet.length() == 0 || tContent.length() == 0) {
+            myToast = Toast.makeText(MemoEditActivity.this, "제목과 내용을 채워주신 후 저장해주십시오.", Toast.LENGTH_SHORT);
+            myToast.show();
+            return true;
+        }
+
         // DB open helper 획득
         openHelper = new MemoDBOpenHelper(this);
         openHelper.open();
@@ -166,17 +172,16 @@ public class MemoEditActivity extends AppCompatActivity {
             // 카메라로 찍은 경우는 2
             // URL 경로로 입력된 경우는 3
             temp_path = (CustomImagePath)i.next();
-
+            String tempDestFIlePath = null;
             // 사진첩에서 선택된 경우 특정 위치로 복사시켜준다.
             if(temp_path.pathType == 1) {
-                String tempDestFIlePath = null;
                 try {
                     tempDestFIlePath = copyImageFromPath(temp_path.getImagePath());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             }
-            openHelper.insertImgPath(memo_id, temp_path.getImagePath(), temp_path.getPathType());
+            openHelper.insertImgPath(memo_id, tempDestFIlePath, temp_path.getPathType());
         }
 
         beDeletedIidList = imgPathModificationRecorder.getBeDeletedIidList();
