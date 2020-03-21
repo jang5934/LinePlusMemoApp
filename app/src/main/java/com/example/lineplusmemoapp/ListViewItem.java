@@ -6,7 +6,7 @@ import android.net.Uri;
 public class ListViewItem {
     private int mid;
     private Drawable iconDrawable ;
-    private Uri imageUri;
+    private String imageUri;
     private String subjectStr ;
     private String previewStr ;
     private int pathType;
@@ -17,7 +17,7 @@ public class ListViewItem {
     public void setIcon(Drawable icon) {
         iconDrawable = icon;
     }
-    public void setImageuri(Uri imguri) {
+    public void setImageuri(String imguri) {
         imageUri = imguri;
     }
     public void setSubject(String subject) {
@@ -32,7 +32,7 @@ public class ListViewItem {
     public Drawable getIcon() {
         return this.iconDrawable ;
     }
-    public Uri getImageUri() {
+    public String getImageUri() {
         return this.imageUri;
     }
     public String getSubject() {

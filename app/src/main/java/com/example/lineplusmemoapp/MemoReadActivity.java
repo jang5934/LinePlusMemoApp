@@ -1,9 +1,15 @@
 package com.example.lineplusmemoapp;
 
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -23,34 +29,24 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class MemoReadActivity extends AppCompatActivity {
 
+    private ReadViewModel readViewModel;
     private int memo_id;
+    private Context currentContext;
+    private ArrayList<MemoImageData> imgPaths;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memo_read);
-
-        // 액션 바 이름 설정 - '읽기 페이지'
-        ActionBar ab = getSupportActionBar();
-        ab.setTitle(R.string.read);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+        currentContext = getBaseContext();
 
         // 이전 액티비티에서 선택된 메모의 id 획득
         Intent intent = getIntent();
         memo_id = intent.getExtras().getInt("mid");
-
-        // DB 헬퍼 및 커서 생성
-        MemoDBOpenHelper openhelper = new MemoDBOpenHelper(this);
-        openhelper.open();
-        openhelper.create();
-        Cursor mCursor = openhelper.selectMemoWhereMid(memo_id);
-        mCursor.moveToNext();
 
         // 전체 틀 선택
         RelativeLayout parentReadLayout = findViewById(R.id.read_page_layout);
@@ -72,9 +68,7 @@ public class MemoReadActivity extends AppCompatActivity {
         tSubject_left.setTextColor(Color.parseColor("#000000"));
         tSubject_left.setTextSize(25);
 
-        TextView tSubject_right = new TextView(this);
-        String curSubject = mCursor.getString(mCursor.getColumnIndex("subject"));
-        tSubject_right.setText(curSubject);
+        final TextView tSubject_right = new TextView(this);
         tSubject_right.setTextSize(20);
         tSubject_right.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
 
@@ -112,54 +106,71 @@ public class MemoReadActivity extends AppCompatActivity {
         tContent_left.setLayoutParams(linearLayoutParams_left);
 
         // 읽기 페이지의 내용_레이아웃 생성
-        LinearLayout content_container = new LinearLayout(this);
+        final LinearLayout content_container = new LinearLayout(this);
         content_container.setOrientation(LinearLayout.VERTICAL);
         content_container.setLayoutParams(linearLayoutParams_right);
 
         // 내용 뷰 생성
-        TextView tContent_right = new TextView(this);
-        String curContent = mCursor.getString(mCursor.getColumnIndex("content"));
-        tContent_right.setText(curContent);
+        final TextView tContent_right = new TextView(this);
         tContent_right.setTextSize(20);
 
         content_container.addView(tContent_right);
-
-        LinearLayout.LayoutParams imageParams =
-                new LinearLayout.LayoutParams(300, 300, 1f);
-        imageParams.topMargin = 20;
-
-        Cursor iCursor = openhelper.selectImgPathWhereMid(memo_id);
-        try {
-            while (iCursor.moveToNext()) {
-                final ImageView iv = new ImageView(this);  // 새로 추가할 imageView 생성
-                final String imgPath = iCursor.getString(iCursor.getColumnIndex("path"));
-                iv.setLayoutParams(imageParams);  // imageView layout 설정
-                content_container.addView(iv); // 기존 linearLayout에 imageView 추가
-
-                iv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), ImageViewerActivity.class);
-                        intent.putExtra("path", imgPath);
-                        startActivity(intent);
-                    }
-                });
-                // https://bumptech.github.io/glide/
-                Glide.with(this)
-                        .load(imgPath)
-                        .error(R.mipmap.error_image)
-                        .into(iv);
-            }
-        } finally {
-            iCursor.close();
-        }
-        mCursor.close();
 
         contentLayout.addView(tContent_left);
         contentLayout.addView(content_container);
 
         parentReadLayout.addView(contentLayout);
 
+        // 읽기 뷰 모델 호출
+        readViewModel = new ViewModelProvider.AndroidViewModelFactory(getApplication()).create(ReadViewModel.class);
+
+        readViewModel.setMemo_id(memo_id);
+        readViewModel.setRequestingContextt(currentContext);
+
+        final LinearLayout.LayoutParams imageParams =
+                new LinearLayout.LayoutParams(300, 300, 1f);
+        imageParams.topMargin = 20;
+
+        final Observer<MemoData> dataObserver = new Observer<MemoData>() {
+            @Override
+            public void onChanged(MemoData data) {
+                tSubject_right.setText(data.getSubject());
+                tContent_right.setText(data.getMemoContent());
+
+                if(imgPaths != null)
+                    imgPaths.clear();
+
+                imgPaths = data.getImages();
+
+                for (final MemoImageData imgPath : imgPaths) {
+                    ImageView iv = new ImageView(currentContext);  // 새로 추가할 imageView 생성
+                    iv.setLayoutParams(imageParams);  // imageView layout 설정
+                    content_container.addView(iv); // 기존 linearLayout에 imageView 추가
+
+                    iv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getApplicationContext(), ImageViewerActivity.class);
+                            intent.putExtra("path", imgPath.getImagePath());
+                            startActivity(intent);
+                        }
+                    });
+
+                    // https://bumptech.github.io/glide/
+                    Glide.with(currentContext)
+                            .load(imgPath.getImagePath())
+                            .error(R.mipmap.error_image)
+                            .into(iv);
+                }
+            }
+        };
+
+        // LiveData를 관찰하고 관찰한 데이터를 이 액티비티에 넘기도록 설정.
+        readViewModel.getCurrentData().observe(this, dataObserver);
+
+        // 액션 바 이름 설정 - '읽기 페이지'
+        ActionBar ab = getSupportActionBar();
+        ab.setTitle(R.string.read);
     }
 
     // 메모 읽기 창 액션 바 등록

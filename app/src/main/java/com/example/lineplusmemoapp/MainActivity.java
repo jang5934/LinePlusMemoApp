@@ -3,8 +3,11 @@ package com.example.lineplusmemoapp;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,85 +16,77 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 // https://github.com/ParkSangGwon/TedPermission
+import com.bumptech.glide.Glide;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private MainActivityViewModel mainActivityViewModel;
+    private Context currentContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        currentContext = getBaseContext();
 
         // https://github.com/ParkSangGwon/TedPermission
         tedPermission();
 
-        // 액션 바 이름 설정 - '메모 보기'
-        ActionBar ab = getSupportActionBar();
-        ab.setTitle(R.string.app_name);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // DBhelper 및 커서 생성
-        MemoDBOpenHelper openHelper = new MemoDBOpenHelper(this);
-        openHelper.open();
-        openHelper.create();
-
         // 리스트 뷰 및 어댑터 생성
-        ListView listview;
-        ListViewAdapter adapter = new ListViewAdapter();
+        final ListView listview;
+        final ListViewAdapter adapter = new ListViewAdapter();
 
         // 리스트뷰 참조 및 Adapter달기
         listview = findViewById(R.id.memo_listview);
         listview.setAdapter(adapter);
 
-        // 리스트 아이템 추가 파트
-        Cursor mCursor = openHelper.selectMemo();
+        mainActivityViewModel = new ViewModelProvider.AndroidViewModelFactory(getApplication()).create(MainActivityViewModel.class);
+        mainActivityViewModel.setRequestingContextt(currentContext);
 
-        try{
-            while(mCursor.moveToNext()) {
-                int tMid = mCursor.getInt(mCursor.getColumnIndex("mid"));
-                String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
-                String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
-
-                Cursor iCursor = openHelper.selectImgPathWhereMid(tMid);
-
-                if(iCursor.getCount() == 0) {
-                    adapter.addItem(tMid, ContextCompat.getDrawable(this, R.mipmap.ic_img_empty), tSubjcet, tContent);
-                }
-                else {
-                    iCursor.moveToFirst();
-                    String img_path = iCursor.getString(iCursor.getColumnIndex("path"));
-                    int img_path_type = iCursor.getInt(iCursor.getColumnIndex("path_type"));
-                    Uri img_uri = Uri.parse(img_path);
-                    adapter.addItem(tMid, img_uri, tSubjcet, tContent, img_path_type);
-                }
-                iCursor.close();
-            }
-        } finally {
-            mCursor.close();
-        }
-        // 리스트 뷰 아이템의 이벤트 리스너
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        final Observer<ArrayList<MemoData>> dataObserver = new Observer<ArrayList<MemoData>>() {
             @Override
-            public void onItemClick(AdapterView parent, View v, int position, long id) {
-                // 선택된 아이템 획득
-                ListViewItem item = (ListViewItem) parent.getItemAtPosition(position);
+            public void onChanged(ArrayList<MemoData> data) {
+                // 리스트 뷰 아이템의 이벤트 리스너
+                listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView parent, View v, int position, long id) {
+                        // 선택된 아이템 획득
+                        ListViewItem item = (ListViewItem) parent.getItemAtPosition(position);
 
-                // 선택된 아이템의 실제 메모id를 가지고 읽기 액티비티로 넘어감
-                Intent intent = new Intent(getApplicationContext(), MemoReadActivity.class);
-                intent.putExtra("mid", item.getMid());
-                startActivity(intent);
+                        // 선택된 아이템의 실제 메모id를 가지고 읽기 액티비티로 넘어감
+                        Intent intent = new Intent(getApplicationContext(), MemoReadActivity.class);
+                        intent.putExtra("mid", item.getMid());
+                        startActivity(intent);
+                    }
+                }) ;
+
+                for(final MemoData tListItem : data) {
+                    if(tListItem.getImages() == null) {
+                        adapter.addItem(tListItem.getMid(), ContextCompat.getDrawable(currentContext, R.mipmap.ic_img_empty), tListItem.getSubject(), tListItem.getMemoContent());
+                    }
+                    else {
+                        adapter.addItem(tListItem.getMid(), tListItem.getImages().get(0).getImagePath(), tListItem.getSubject(), tListItem.getMemoContent(), tListItem.getImages().get(0).getPathType());
+                    }
+                }
             }
-        }) ;
-        openHelper.close();
+        };
+
+        // LiveData를 관찰하고 관찰한 데이터를 이 액티비티에 넘기도록 설정.
+        mainActivityViewModel.getCurrentData().observe(this, dataObserver);
+
+        // 액션 바 이름 설정 - '메모 보기'
+        ActionBar ab = getSupportActionBar();
+        ab.setTitle(R.string.app_name);
     }
 
     // 메모 리스트 창 액션 바

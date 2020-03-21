@@ -46,14 +46,11 @@ public class ListViewAdapter extends BaseAdapter {
 
         // 아이템 내 각 위젯에 데이터 반영
         if(listViewItem.getIcon() == null) {
-            if(listViewItem.getPathType() < 3)
-                iconImageView.setImageURI(listViewItem.getImageUri());
-            else
-                // https://bumptech.github.io/glide/
-                Glide.with(iconImageView)
-                        .load(listViewItem.getImageUri())
-                        .error(R.mipmap.error_image)
-                        .into(iconImageView);
+            // https://bumptech.github.io/glide/
+            Glide.with(iconImageView)
+                    .load(listViewItem.getImageUri())
+                    .error(R.mipmap.error_image)
+                    .into(iconImageView);
         }
         else
             iconImageView.setImageDrawable(listViewItem.getIcon());
@@ -92,7 +89,7 @@ public class ListViewAdapter extends BaseAdapter {
         listViewItemList.add(item);
     }
 
-    public void addItem(int id, Uri imgpath, String subject, String preview, int path_type) {
+    public void addItem(int id, String imgpath, String subject, String preview, int path_type) {
         ListViewItem item = new ListViewItem();
 
         item.setMid(id);
