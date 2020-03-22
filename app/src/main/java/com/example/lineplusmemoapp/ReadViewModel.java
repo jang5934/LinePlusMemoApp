@@ -39,7 +39,6 @@ public class ReadViewModel extends ViewModel {
         Cursor iCursor = openhelper.selectImgPathWhereMid(memo_id);
         try {
             while (iCursor.moveToNext()) {
-                MemoImageData memoImgData;
                 int T_iid = iCursor.getInt(iCursor.getColumnIndex("iid"));
                 String T_imgPath = iCursor.getString(iCursor.getColumnIndex("path"));
                 int T_type = iCursor.getInt(iCursor.getColumnIndex("path_type"));
