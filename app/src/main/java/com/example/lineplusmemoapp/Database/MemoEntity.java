@@ -2,6 +2,7 @@ package com.example.lineplusmemoapp.Database;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -10,11 +11,14 @@ public class MemoEntity {
 
     @PrimaryKey(autoGenerate = true)
     int mid;
+
+    @ColumnInfo(name = "subject")
     String subject;
+
+    @ColumnInfo(name = "content")
     String content;
 
-    public MemoEntity(int mid, String subject, String content) {
-        this.mid = mid;
+    public MemoEntity(String subject, String content) {
         this.subject = subject;
         this.content = content;
     }

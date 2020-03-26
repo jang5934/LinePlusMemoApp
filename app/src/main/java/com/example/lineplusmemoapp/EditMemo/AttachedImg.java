@@ -1,4 +1,4 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.EditMemo;
 
 public class AttachedImg {
 

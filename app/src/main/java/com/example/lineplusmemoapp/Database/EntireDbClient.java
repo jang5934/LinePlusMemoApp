@@ -9,9 +9,9 @@ public class EntireDbClient {
     private static EntireDbClient mInstance;
     private EntireDatabase entireDatabase;
 
-    private EntireDbClient(Context mCtx) {
+    public EntireDbClient(Context mCtx) {
         this.mCtx = mCtx;
-        entireDatabase = Room.databaseBuilder(mCtx, EntireDatabase.class, "entireDatabase").build();
+        entireDatabase = Room.databaseBuilder(mCtx, EntireDatabase.class, "entire_Database.db").build();
     }
 
     public static synchronized EntireDbClient getInstance(Context mCtx) {

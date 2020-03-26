@@ -1,4 +1,4 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.MemoList;
 
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -41,5 +41,4 @@ public class ListViewItem {
     public String getPreview() {
         return this.previewStr ;
     }
-    public int getPathType() { return this.pathType; }
 }

@@ -1,7 +1,9 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.EditMemo;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,8 +16,17 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.example.lineplusmemoapp.Database.ImgPathEntity;
+import com.example.lineplusmemoapp.Database.MemoAndImgPathEntity;
+import com.example.lineplusmemoapp.Database.MemoEntity;
+import com.example.lineplusmemoapp.R;
+import com.example.lineplusmemoapp.ReadMemo.ImageViewerActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,10 +34,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
-import static com.example.lineplusmemoapp.AttachedImgAdapter.PICK_FROM_ALBUM;
-import static com.example.lineplusmemoapp.AttachedImgAdapter.PICK_FROM_CAMERA;
+import static com.example.lineplusmemoapp.EditMemo.AttachedImgAdapter.PICK_FROM_ALBUM;
+import static com.example.lineplusmemoapp.EditMemo.AttachedImgAdapter.PICK_FROM_CAMERA;
 
 public class MemoEditActivity extends AppCompatActivity {
 
@@ -36,13 +48,17 @@ public class MemoEditActivity extends AppCompatActivity {
     private RecyclerView attached_imgs_view;
     private LinearLayoutManager attached_imgs_layout_manager;
     private ImgPathModificationRecorder imgPathModificationRecorder;
+    private EditViewModel editViewModel;
+
     Vector<CustomImagePath> beAddedPathList;
-    Vector<String> beDeletedIidList;
+    Vector<Integer> beDeletedIidList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memo_edit);
+
+        editViewModel = new ViewModelProvider.AndroidViewModelFactory(getApplication()).create(EditViewModel.class);
 
         // 이전 액티비티에서 보내온 데이터 획득
         Intent intent = getIntent();
@@ -70,37 +86,33 @@ public class MemoEditActivity extends AppCompatActivity {
         attached_imgs_view.setAdapter(attached_imgs_adapter);
 
         attached_imgs_adapter.add(new AttachedImg(0));
+
+        // 기존 메모 수정 기능으로 진입한 경우,
         if(!type.equals("add_memo")) {
-            // 기존 메모 수정 기능으로 진입한 경우,
-            MemoDBOpenHelper openHelper = new MemoDBOpenHelper(this);
-            openHelper.open();
-            openHelper.create();
 
-            // 찾고자 하는 mid에 대한 커서 획득
-            Cursor mCursor = openHelper.selectMemoWhereMid(memo_id);
-            mCursor.moveToNext();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    // 선택된 메모 데이터 수신
+                    MemoAndImgPathEntity t_Memo = editViewModel.getCurrentMemoAndImgPath(memo_id);
 
-            // 현재 커서가 가리키는 컬럼의 제목과 내용 정보 획득
-            String tSubjcet = mCursor.getString(mCursor.getColumnIndex("subject"));
-            String tContent = mCursor.getString(mCursor.getColumnIndex("content"));
+                    // 에딧텍스트 뷰 획득 및 텍스트 적용
+                    EditText eSubject = (EditText) findViewById(R.id.editText_subject);
+                    EditText eContent = (EditText) findViewById(R.id.editText_content);
+                    eSubject.setText(t_Memo.getMemoEntity().getSubject());
+                    eContent.setText(t_Memo.getMemoEntity().getContent());
 
-            // 에딧텍스트 뷰 획득 및 텍스트 적용
-            EditText eSubject = (EditText)findViewById(R.id.editText_subject);
-            EditText eContent = (EditText)findViewById(R.id.editText_content);
-            eSubject.setText(tSubjcet);
-            eContent.setText(tContent);
+                    // 현재 메모에 포함되는 이미지들을 선택
 
-            // 현재 mid에 포함되는 이미지들을 선택
-            Cursor iCursor = openHelper.selectImgPathWhereMid(memo_id);
-            try {
-                while (iCursor.moveToNext()) {
-                    attached_imgs_adapter.add(new AttachedImg(1, iCursor.getString(iCursor.getColumnIndex("path")), Integer.parseInt(iCursor.getString(iCursor.getColumnIndex("iid")))));
+                    List<ImgPathEntity> t_Paths = t_Memo.getImgPaths();
+
+                    for (ImgPathEntity t_Path : t_Paths) {
+                        attached_imgs_adapter.add(new AttachedImg(1, t_Path.getPath(), t_Path.getIid()));
+                    }
                 }
-            } finally {
-                iCursor.close();
-            }
-            iCursor.close();
-            mCursor.close();
+            };
+            Thread t = new Thread(r);
+            t.start();
         }
     }
 
@@ -115,9 +127,8 @@ public class MemoEditActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Toast myToast;
-        String tSubjcet, tContent;
+        final String tSubjcet, tContent;
         EditText eSubject, eContent;
-        MemoDBOpenHelper openHelper;
 
         // 에딧텍스트 뷰 획득
         eSubject = (EditText) findViewById(R.id.editText_subject);
@@ -133,30 +144,34 @@ public class MemoEditActivity extends AppCompatActivity {
             return true;
         }
 
-        // DB open helper 획득
-        openHelper = new MemoDBOpenHelper(this);
-        openHelper.open();
-        openHelper.create();
-
         // 액션 바 위의 저장 버튼이 눌렸을 때,
         switch (item.getItemId()) {
             case R.id.action_save :
                 // 만약 현재 기능이 '새 메모 추가'였을 경우
                 if(type.equals("add_memo")) {
-                    openHelper.insertMemo(tSubjcet, tContent);
-                    Cursor mCursor = openHelper.selectMemo();
-                    mCursor.moveToNext();
-                    memo_id = mCursor.getInt(mCursor.getColumnIndex("mid"));
-                    myToast = Toast.makeText(MemoEditActivity.this, "새 메모가 추가되었습니다.", Toast.LENGTH_SHORT);
-                    myToast.show();
-                    finish();
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            memo_id = (int)(editViewModel.insertCurrentMemo(new MemoEntity(tSubjcet, tContent)));
+                            finish();
+                        }
+                    };
+                    Thread t = new Thread(r);
+                    t.start();
+                    Toast.makeText(MemoEditActivity.this, "새 메모가 추가되었습니다.", Toast.LENGTH_SHORT).show();
                 }
                 // 현재 기능이 '기존 메모 수정'이었을 경우
                 else {
-                    openHelper.updateMemo(memo_id, tSubjcet, tContent);
-                    myToast = Toast.makeText(MemoEditActivity.this, "메모가 수정되었습니다.", Toast.LENGTH_SHORT);
-                    myToast.show();
-                    finish();
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            editViewModel.updateCurrentMemo(memo_id, new MemoEntity(tSubjcet, tContent));
+                            finish();
+                        }
+                    };
+                    Thread t = new Thread(r);
+                    t.start();
+                    Toast.makeText(MemoEditActivity.this, "메모가 수정되었습니다.", Toast.LENGTH_SHORT).show();
                 }
         }
 
@@ -171,43 +186,54 @@ public class MemoEditActivity extends AppCompatActivity {
             // 카메라로 찍은 경우는 2
             // URL 경로로 입력된 경우는 3
             temp_path = (CustomImagePath)i.next();
-            String tempDestFIlePath = null;
+            final CustomImagePath finalTemp_path = temp_path;
+            final String[] tempDestFIlePath = {null};
             // 사진첩에서 선택된 경우 특정 위치로 복사시켜준다.
-            if(temp_path.getPathType() == 1) {
-                try {
-                    tempDestFIlePath = copyImageFromPath(temp_path.getImagePath());
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    if(finalTemp_path.getPathType() == 1) {
+                        try {
+                            tempDestFIlePath[0] = copyImageFromPath(finalTemp_path.getImagePath());
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
+                        editViewModel.insertImgPath(new ImgPathEntity(memo_id, tempDestFIlePath[0], finalTemp_path.getPathType()));
+                    }
+                    else {
+                        editViewModel.insertImgPath(new ImgPathEntity(memo_id, finalTemp_path.getImagePath(), finalTemp_path.getPathType()));
+                    }
                 }
-                openHelper.insertImgPath(memo_id, tempDestFIlePath, temp_path.getPathType());
-            }
-            else {
-                openHelper.insertImgPath(memo_id, temp_path.getImagePath(), temp_path.getPathType());
-            }
+            };
+
+            Thread t = new Thread(r);
+            t.start();
         }
 
+        // DB에서 삭제될 사진들의 iid 벡터
         beDeletedIidList = imgPathModificationRecorder.getBeDeletedIidList();
-        i = beDeletedIidList.iterator();
-        while (i.hasNext()) {
-            // DB에서 삭제될 사진들의 iid 벡터
-            String tempBeDeletedIid = (String)i.next();
-            int transformedIid = Integer.parseInt(tempBeDeletedIid);
 
-            // iid로 사진경로를 가지고 온 뒤
-            Cursor tempCursor = openHelper.selectImgPathWhereIid(transformedIid);
-            tempCursor.moveToFirst();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                for(int iid : beDeletedIidList) {
+                    // iid로 사진경로를 가지고 온 뒤
+                    ImgPathEntity t_imgPath = editViewModel.selectImgPath(iid);
 
-            // 사진 삭제 및 해당 iid 컬럼 삭제
-            // 사진이 local에 저장된 경우에만 사진 삭제 수행
-            String filePath = tempCursor.getString(tempCursor.getColumnIndex("path"));
-            if(filePath.startsWith("/storage/")) {
-                File delFile = new File(filePath);
-                delFile.delete();
+                    // 사진 삭제 및 해당 iid 컬럼 삭제
+                    // 사진이 local에 저장된 경우에만 사진 삭제 수행
+                    String filePath = t_imgPath.getPath();
+                    if(filePath.startsWith("/storage/")) {
+                        File delFile = new File(filePath);
+                        delFile.delete();
+                    }
+                    editViewModel.deleteImgPath(iid);
+                }
             }
-            openHelper.deleteImgIid(transformedIid);
-        }
-        openHelper.close();
-
+        };
+        Thread t = new Thread(r);
+        t.start();
         return super.onOptionsItemSelected(item);
     }
 

@@ -1,4 +1,4 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.ReadMemo;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 // https://bumptech.github.io/glide/
 import com.bumptech.glide.Glide;
+import com.example.lineplusmemoapp.R;
 
 public class ImageViewerActivity extends AppCompatActivity {
 

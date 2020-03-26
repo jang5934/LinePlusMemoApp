@@ -2,19 +2,31 @@ package com.example.lineplusmemoapp.Database;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "tb_img_path")
+import static androidx.room.ForeignKey.CASCADE;
+
+@Entity(tableName = "tb_img_path",
+        indices = {@Index ("iid")},
+        foreignKeys = @ForeignKey(onDelete = CASCADE, entity = MemoEntity.class,
+        parentColumns = "mid",
+        childColumns = "mid"))
+
 public class ImgPathEntity {
     @PrimaryKey(autoGenerate = true)
     int iid;
+    @ColumnInfo(name = "mid")
     int mid;
+    @ColumnInfo(name = "path")
     String path;
+    @ColumnInfo(name = "path_type")
     int path_type;
 
-    public ImgPathEntity(int iid, int mid, String path, int path_type) {
-        this.iid = iid;
+    public ImgPathEntity(int mid, String path, int path_type) {
         this.mid = mid;
         this.path = path;
         this.path_type = path_type;

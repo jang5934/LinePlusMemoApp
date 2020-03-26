@@ -1,4 +1,4 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.EditMemo;
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -6,7 +6,7 @@ import java.util.Vector;
 public class ImgPathModificationRecorder {
 
     private Vector<CustomImagePath> beAddedPathList;
-    private Vector<String> beDeletedIidList;
+    private Vector<Integer> beDeletedIidList;
 
     public ImgPathModificationRecorder() {
         beAddedPathList = new Vector<>();
@@ -17,7 +17,7 @@ public class ImgPathModificationRecorder {
         beAddedPathList.add(new CustomImagePath(path, type));
     }
 
-    public void addBeDeletedIid (String iid){
+    public void addBeDeletedIid (int iid){
         beDeletedIidList.add(iid);
     }
 
@@ -35,7 +35,7 @@ public class ImgPathModificationRecorder {
         return beAddedPathList;
     }
 
-    public Vector<String> getBeDeletedIidList() {
+    public Vector<Integer> getBeDeletedIidList() {
         return beDeletedIidList;
     }
 }

@@ -1,10 +1,12 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.EditMemo;
 
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.lineplusmemoapp.R;
 
 public class AttachedImgViewHolder extends RecyclerView.ViewHolder {
 

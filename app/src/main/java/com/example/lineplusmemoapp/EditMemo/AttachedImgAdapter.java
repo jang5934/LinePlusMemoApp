@@ -1,4 +1,4 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.EditMemo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,6 +21,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.example.lineplusmemoapp.ImgPathMaker;
+import com.example.lineplusmemoapp.R;
 // https://bumptech.github.io/glide/
 
 import java.util.ArrayList;
@@ -28,8 +30,7 @@ import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
-
-public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHolder> implements OnAttachedImgClickListener{
+public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHolder> implements OnAttachedImgClickListener {
 
     private List<AttachedImg> items = new ArrayList<>();
 
@@ -118,10 +119,8 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
             holder.mIconDel.getLayoutParams().height = 50;
             holder.mIconDel.setImageResource(R.mipmap.delete_icon);
         }
-
         holder.mImg.getLayoutParams().width = 200;
         holder.mImg.getLayoutParams().height = 200;
-
     }
 
     @Override
@@ -234,7 +233,7 @@ public class AttachedImgAdapter extends RecyclerView.Adapter<AttachedImgViewHold
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if(items.get(tPos).getImg_type() == 1) // DB에서 삭제할 필요가 있으므로
-                        imgPathModificationRecorder.addBeDeletedIid(Integer.toString(items.get(tPos).getIid()));
+                        imgPathModificationRecorder.addBeDeletedIid(items.get(tPos).getIid());
                     else if(items.get(tPos).getImg_type() > 1) // DB에는 추가돼있진 않지만 현재 beAddedPathList에 추가돼있으므로 빼두어야함
                     {
                         String derivedPath = items.get(tPos).getImgPath();

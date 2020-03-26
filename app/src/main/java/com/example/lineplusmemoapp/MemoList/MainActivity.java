@@ -1,4 +1,4 @@
-package com.example.lineplusmemoapp;
+package com.example.lineplusmemoapp.MemoList;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,53 +9,47 @@ import androidx.lifecycle.ViewModelProvider;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 // https://github.com/ParkSangGwon/TedPermission
-import com.bumptech.glide.Glide;
+import com.example.lineplusmemoapp.Database.MemoAndImgPathEntity;
+import com.example.lineplusmemoapp.EditMemo.MemoEditActivity;
+import com.example.lineplusmemoapp.R;
+import com.example.lineplusmemoapp.ReadMemo.MemoReadActivity;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private MainActivityViewModel mainActivityViewModel;
-    private Context currentContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        currentContext = getBaseContext();
 
         // https://github.com/ParkSangGwon/TedPermission
         tedPermission();
 
         // 리스트 뷰 및 어댑터 생성
-        final ListView listview;
-        final ListViewAdapter adapter = new ListViewAdapter();
-
-        // 리스트뷰 참조 및 Adapter달기
-        listview = findViewById(R.id.memo_listview);
-        listview.setAdapter(adapter);
+        final ListView listview = findViewById(R.id.memo_listview);
 
         mainActivityViewModel = new ViewModelProvider.AndroidViewModelFactory(getApplication()).create(MainActivityViewModel.class);
-        mainActivityViewModel.setRequestingContextt(currentContext);
-
-        final Observer<ArrayList<MemoData>> dataObserver = new Observer<ArrayList<MemoData>>() {
+        // LiveData를 관찰하고 관찰한 데이터를 이 액티비티에 넘기도록 설정.
+        mainActivityViewModel.getCurrentMemoAndImgPath().observe(this, new Observer<List<MemoAndImgPathEntity>>() {
             @Override
-            public void onChanged(ArrayList<MemoData> data) {
+            public void onChanged(final List<MemoAndImgPathEntity> t_memo) {
+                // 리스트뷰 참조 및 Adapter달기
+                ListViewAdapter adapter = new ListViewAdapter();
+                listview.setAdapter(adapter);
+
                 // 리스트 뷰 아이템의 이벤트 리스너
                 listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -70,19 +64,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }) ;
 
-                for(final MemoData tListItem : data) {
-                    if(tListItem.getImages() == null) {
-                        adapter.addItem(tListItem.getMid(), ContextCompat.getDrawable(currentContext, R.mipmap.ic_img_empty), tListItem.getSubject(), tListItem.getMemoContent());
+                for(final MemoAndImgPathEntity tListItem : t_memo) {
+                    if(tListItem.getImgPaths().size() == 0) {
+                        adapter.addItem(tListItem.getMemoEntity().getMid(), ContextCompat.getDrawable(getBaseContext(), R.mipmap.ic_img_empty), tListItem.getMemoEntity().getSubject(), tListItem.getMemoEntity().getContent());
                     }
                     else {
-                        adapter.addItem(tListItem.getMid(), tListItem.getImages().get(0).getImagePath(), tListItem.getSubject(), tListItem.getMemoContent(), tListItem.getImages().get(0).getPathType());
+                        adapter.addItem(tListItem.getMemoEntity().getMid(), tListItem.getImgPaths().get(0).getPath(), tListItem.getMemoEntity().getSubject(), tListItem.getMemoEntity().getContent(), tListItem.getImgPaths().get(0).getPath_type());
                     }
                 }
             }
-        };
-
-        // LiveData를 관찰하고 관찰한 데이터를 이 액티비티에 넘기도록 설정.
-        mainActivityViewModel.getCurrentData().observe(this, dataObserver);
+        });
 
         // 액션 바 이름 설정 - '메모 보기'
         ActionBar ab = getSupportActionBar();
