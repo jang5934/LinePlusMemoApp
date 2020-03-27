@@ -14,7 +14,7 @@ public abstract class EntireDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract long insertMemo(MemoEntity entity);
 
-    @Query("SELECT * FROM tb_memo")
+    @Query("SELECT * FROM tb_memo ORDER BY mid DESC")
     public abstract LiveData<List<MemoAndImgPathEntity>> selectMemoAndImgPathEntity();
 
     @Query("UPDATE tb_memo SET subject = :subject, content =:content WHERE mid = :mid")

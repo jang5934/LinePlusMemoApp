@@ -5,12 +5,10 @@ import android.content.Context;
 import androidx.room.Room;
 
 public class EntireDbClient {
-    private Context mCtx;
     private static EntireDbClient mInstance;
     private EntireDatabase entireDatabase;
 
     public EntireDbClient(Context mCtx) {
-        this.mCtx = mCtx;
         entireDatabase = Room.databaseBuilder(mCtx, EntireDatabase.class, "entire_Database.db").build();
     }
 

@@ -64,19 +64,19 @@ public class ListViewAdapter extends BaseAdapter {
         return convertView;
     }
 
-    // 지정한 위치(position)에 있는 데이터와 관계된 아이템(row)의 ID를 리턴.
+    // 지정한 위치(position)에 있는 데이터와 관계된 아이템(row)의 ID를 리턴
     @Override
     public long getItemId(int position) {
         return position;
     }
 
-    // 지정한 위치(position)에 있는 데이터 리턴.
+    // 지정한 위치(position)에 있는 데이터 리턴
     @Override
     public Object getItem(int position) {
         return listViewItemList.get(position);
     }
 
-    // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
+    // 메모에 첨부된 사진이 없을 경우에 실행되는 메소드
     public void addItem(int id, Drawable icon, String subject, String preview) {
         ListViewItem item = new ListViewItem();
 
@@ -89,6 +89,7 @@ public class ListViewAdapter extends BaseAdapter {
         listViewItemList.add(item);
     }
 
+    // 메모에 첨부된 사진이 하나 이상인 경우에 실행되는 메소드
     public void addItem(int id, String imgpath, String subject, String preview, int path_type) {
         ListViewItem item = new ListViewItem();
 

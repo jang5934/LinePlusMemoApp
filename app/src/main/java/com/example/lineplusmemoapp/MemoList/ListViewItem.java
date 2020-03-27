@@ -1,7 +1,6 @@
 package com.example.lineplusmemoapp.MemoList;
 
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 
 public class ListViewItem {
     private int mid;

@@ -35,10 +35,6 @@ public class MemoEntity {
         return subject;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
     public String getContent() {
         return content;
     }

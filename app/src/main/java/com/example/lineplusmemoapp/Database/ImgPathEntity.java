@@ -60,10 +60,6 @@ public class ImgPathEntity {
         return path_type;
     }
 
-    public void setPath_type(int path_type) {
-        this.path_type = path_type;
-    }
-
     @Override
     public String toString() {
         return "ImgPathEntity{" +
